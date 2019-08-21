@@ -1,0 +1,10 @@
+name: CI
+
+on: [pull-request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: srvaroa/labeller
+    - name: Label PR
