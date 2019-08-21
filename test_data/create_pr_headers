@@ -1,0 +1,7 @@
+Request URL: http://example.com
+Request method: POST
+content-type: application/json
+Expect: 
+User-Agent: GitHub-Hookshot/aef1084
+X-GitHub-Delivery: 5a529a20-8f96-11e9-88e4-07664efbd106
+X-GitHub-Event: pull_request
