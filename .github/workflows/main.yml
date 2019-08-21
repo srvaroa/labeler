@@ -1,10 +1,15 @@
-name: CI
+name: Label Pull Requests
 
-on: [pull-request]
+on: [pull_request]
 
 jobs:
   build:
+
     runs-on: ubuntu-latest
+    
     steps:
-    - uses: srvaroa/labeller
-    - name: Label PR
+    - uses: actions/checkout@v1
+    - name: Label PRs
+      run: |
+        go build -o action ./cmd
+        ./action
