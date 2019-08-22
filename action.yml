@@ -5,3 +5,9 @@ inputs:
   configuration-path:
     description: 'Path for labeling rules'
     default: '.github/labeler.yml'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+branding:
+  icon: award
+  color: blue
