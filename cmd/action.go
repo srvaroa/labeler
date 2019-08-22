@@ -2,10 +2,13 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 
+	"github.com/go-yaml/yaml"
 	"github.com/google/go-github/v27/github"
 	labeler "github.com/srvaroa/labeler/pkg"
 	"golang.org/x/oauth2"
@@ -16,11 +19,25 @@ func main() {
 	gh := getGithubClient()
 	eventPayload := getEventPayload()
 	eventName := os.Getenv("GITHUB_EVENT_NAME")
-	config := getLabelerConfig()
+
+	// TODO: rethink this.  Currently we'll take the config from the
+	// PR's branch, not from master.  My intuition is that one wants
+	// to see the rules that are set in the main branch (as those are
+	// vetted by the repo's owners).  It seems fairly common in GH
+	// actions to use this approach, and I will need to consider
+	// whatever branch is set as main in the repo settings, so leaving
+	// as this for now.
+	configRaw := getRepoFile(gh,
+		os.Getenv("GITHUB_REPOSITORY"),
+		os.Getenv("INPUT_CONFIG_PATH"),
+		os.Getenv("GITHUB_SHA"))
+
+	config := getLabelerConfig(configRaw)
 
 	log.Printf("Re-evaluating labels on %s@%s",
 		os.Getenv("GITHUB_REPOSITORY"),
 		os.Getenv("GITHUB_SHA"))
+
 	log.Printf("Trigger event: %s", os.Getenv("GITHUB_EVENT_NAME"))
 
 	err := newLabeler(gh, config).HandleEvent(eventName, eventPayload)
@@ -30,12 +47,45 @@ func main() {
 
 }
 
-func getLabelerConfig() *labeler.LabelerConfig {
-	c := labeler.LabelerConfig{
-		"WIP": labeler.LabelMatcher{
-			Title: "^WIP:.*",
-		},
+func getRepoFile(gh *github.Client, repo, file, sha string) *[]byte {
+
+	t := strings.Split(repo, "/")
+	owner, repoName := t[0], t[1]
+
+	fileContent, _, _, err := gh.Repositories.GetContents(
+		context.Background(),
+		owner,
+		repoName,
+		file,
+		&github.RepositoryContentGetOptions{Ref: sha})
+
+	var content string
+	if err == nil {
+		content, err = fileContent.GetContent()
 	}
+
+	if err != nil {
+		log.Fatalf("Unable to load configuration from %s@%s/%s: %s",
+			repo, sha, file, err)
+	}
+
+	log.Printf("Loaded config from %s@%s:%s\n--\n%s", repo, sha, file, content)
+
+	raw := []byte(content)
+	return &raw
+}
+
+// getLabelerConfig builds a LabelerConfig from a raw yaml
+func getLabelerConfig(configRaw *[]byte) *labeler.LabelerConfig {
+
+	var c labeler.LabelerConfig
+
+	err := yaml.Unmarshal(*configRaw, &c)
+	if err != nil {
+		log.Fatalf("Unable to unmarshall config --\n%s\n--, %s", configRaw, err)
+	}
+	fmt.Printf("The config: %+v", c)
+
 	return &c
 }
 

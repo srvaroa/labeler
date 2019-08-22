@@ -9,7 +9,7 @@ import (
 
 type LabelerConfig map[string]LabelMatcher
 type LabelMatcher struct {
-	Title string "json:title"
+	Title string
 }
 
 // LabelUpdates Represents a request to update the set of labels

@@ -2,7 +2,7 @@ name: 'Rule based Pull Request Labeler'
 description: 'Label Pull Requests based on rules'
 author: 'Galo Navarro <anglorvaroa@gmail.com>'
 inputs: 
-  configuration-path:
+  config_path:
     description: 'Path for labeling rules'
     default: '.github/labeler.yml'
 runs:
