@@ -10,6 +10,3 @@ jobs:
     steps:
     - uses: srvaroa/labeler@master
     - name: Label PRs
-      run: |
-        go build -o action ./cmd
-        ./action
