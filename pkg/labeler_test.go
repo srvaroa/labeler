@@ -29,6 +29,20 @@ func TestHandleEvent(t *testing.T) {
 	// These all use the payload in payload files
 	testCases := []TestCase{
 		TestCase{
+			name:           "Empty config",
+			config:         LabelerConfig{},
+			initialLabels:  []string{"Fix"},
+			expectedLabels: []string{"Fix"},
+		},
+		TestCase{
+			name: "Config with no rules",
+			config: LabelerConfig{
+				"WIP": LabelMatcher{},
+			},
+			initialLabels:  []string{"Fix"},
+			expectedLabels: []string{"Fix"},
+		},
+		TestCase{
 			name: "Add a label when not set and config matches",
 			config: LabelerConfig{
 				"WIP": LabelMatcher{

@@ -1,6 +1,7 @@
 package labeler
 
 import (
+	"errors"
 	"log"
 	"regexp"
 
@@ -21,6 +22,27 @@ type Labeler struct {
 	FetchRepoConfig    func(owner string, repoName string) (*LabelerConfig, error)
 	ReplaceLabelsForPr func(owner string, repoName string, prNumber int, labels []string) error
 	GetCurrentLabels   func(owner string, repoName string, prNumber int) ([]string, error)
+}
+
+type Condition struct {
+	Evaluate func(pr *gh.PullRequest, matcher LabelMatcher) (bool, error)
+	GetName  func() string
+}
+
+func NewTitleCondition() Condition {
+	return Condition{
+		GetName: func() string {
+			return "Title matches regex"
+		},
+		Evaluate: func(pr *gh.PullRequest, matcher LabelMatcher) (bool, error) {
+			if len(matcher.Title) <= 0 {
+				return false, errors.New("Title matcher is not applicable")
+			}
+			log.Printf("Matching `%s` against: `%s`", matcher.Title, pr.GetTitle())
+			isMatched, _ := regexp.Match(matcher.Title, []byte(pr.GetTitle()))
+			return isMatched, nil
+		},
+	}
 }
 
 // HandleEvent takes a GitHub Event and its raw payload (see link below)
@@ -89,9 +111,16 @@ func (l *Labeler) findMatches(pr *gh.PullRequest, config *LabelerConfig) (LabelU
 	labelUpdates := LabelUpdates{
 		set: map[string]bool{},
 	}
+	condition := NewTitleCondition()
+
 	for label, matcher := range *config {
-		log.Printf("Matching `%s` against: `%s`", matcher.Title, pr.GetTitle())
-		isMatched, _ := regexp.Match(matcher.Title, []byte(pr.GetTitle()))
+
+		isMatched, err := condition.Evaluate(pr, matcher)
+		if err != nil {
+			log.Printf("Condition %s skipped: %s", condition.GetName(), err)
+			continue
+		}
+
 		labelUpdates.set[label] = isMatched
 		if isMatched {
 			log.Printf("Matched on %s", label)
