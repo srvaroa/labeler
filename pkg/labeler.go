@@ -1,16 +1,18 @@
 package labeler
 
 import (
-	"errors"
+	"fmt"
 	"log"
 	"regexp"
+	"strconv"
 
 	gh "github.com/google/go-github/v27/github"
 )
 
 type LabelerConfig map[string]LabelMatcher
 type LabelMatcher struct {
-	Title string
+	Title     string
+	Mergeable string
 }
 
 // LabelUpdates Represents a request to update the set of labels
@@ -36,11 +38,29 @@ func NewTitleCondition() Condition {
 		},
 		Evaluate: func(pr *gh.PullRequest, matcher LabelMatcher) (bool, error) {
 			if len(matcher.Title) <= 0 {
-				return false, errors.New("Title matcher is not applicable")
+				return false, fmt.Errorf("Not applicable")
 			}
 			log.Printf("Matching `%s` against: `%s`", matcher.Title, pr.GetTitle())
 			isMatched, _ := regexp.Match(matcher.Title, []byte(pr.GetTitle()))
 			return isMatched, nil
+		},
+	}
+}
+
+func NewIsMergeableCondition() Condition {
+	return Condition{
+		GetName: func() string {
+			return "Pull Request is mergeable"
+		},
+		Evaluate: func(pr *gh.PullRequest, matcher LabelMatcher) (bool, error) {
+			b, err := strconv.ParseBool(matcher.Mergeable)
+			if err != nil {
+				return false, fmt.Errorf("Mergeable is not set in config")
+			}
+			if b {
+				return pr.GetMergeable(), nil
+			}
+			return !pr.GetMergeable(), nil
 		},
 	}
 }
@@ -111,20 +131,26 @@ func (l *Labeler) findMatches(pr *gh.PullRequest, config *LabelerConfig) (LabelU
 	labelUpdates := LabelUpdates{
 		set: map[string]bool{},
 	}
-	condition := NewTitleCondition()
+	conditions := []Condition{
+		NewTitleCondition(),
+		NewIsMergeableCondition(),
+	}
 
 	for label, matcher := range *config {
+		for _, c := range conditions {
+			isMatched, err := c.Evaluate(pr, matcher)
+			if err != nil {
+				log.Printf("%s: condition %s skipped (%s)", label, c.GetName(), err)
+				continue
+			}
 
-		isMatched, err := condition.Evaluate(pr, matcher)
-		if err != nil {
-			log.Printf("Condition %s skipped: %s", condition.GetName(), err)
-			continue
-		}
-
-		labelUpdates.set[label] = isMatched
-		if isMatched {
-			log.Printf("Matched on %s", label)
+			labelUpdates.set[label] = isMatched
+			log.Printf("%s: condition %s yields %t", label, c.GetName(), isMatched)
+			if isMatched {
+				continue
+			}
 		}
 	}
+
 	return labelUpdates, nil
 }

@@ -85,6 +85,28 @@ func TestHandleEvent(t *testing.T) {
 			initialLabels:  []string{"ShouldRemove", "ShouldRespect"},
 			expectedLabels: []string{"WIP", "ShouldRespect"},
 		},
+		TestCase{
+			name: "Add a label with two conditions, both matching",
+			config: LabelerConfig{
+				"WIP": LabelMatcher{
+					Title:     "^WIP:.*",
+					Mergeable: "False",
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{"WIP"},
+		},
+		TestCase{
+			name: "Add a label with two conditions, one not matching",
+			config: LabelerConfig{
+				"WIP": LabelMatcher{
+					Title:     "^WIP:.*",
+					Mergeable: "True",
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{},
+		},
 	}
 
 	payloads := []string{"create_pr", "reopen_pr"}
@@ -96,6 +118,7 @@ func TestHandleEvent(t *testing.T) {
 		}
 
 		for _, tc := range testCases {
+			fmt.Println(tc.name)
 			labeler := Labeler{
 				FetchRepoConfig: func(owner, repoName string) (*LabelerConfig, error) {
 					return &tc.config, nil
