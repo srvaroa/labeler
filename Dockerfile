@@ -1,6 +1,6 @@
 FROM golang:1.12-alpine
 
-LABEL "com.github.actions.name"="Auto label pr"
+LABEL "com.github.actions.name"="Condition-based Pull Request labeller"
 LABEL "com.github.actions.description"="Automatically label pull requests based on rules"
 LABEL "com.github.actions.icon"="award"
 LABEL "com.github.actions.color"="blue"
