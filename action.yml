@@ -1,4 +1,4 @@
-name: 'Rule based Pull Request Labeler'
+name: 'Condition-based Pull Request labeler'
 description: 'Label Pull Requests based on rules'
 author: 'Galo Navarro <anglorvaroa@gmail.com>'
 inputs: 
