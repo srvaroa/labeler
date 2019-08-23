@@ -31,13 +31,7 @@ func (l *Labeler) HandleEvent(
 	eventName string,
 	payload *[]byte) error {
 
-	// Workaround for https://github.com/google/go-github/issues/1254
-	// should be removable soon-ish according to
-	// https://github.com/google/go-github/issues/1254#issuecomment-523701383
-	re := regexp.MustCompile(`\s+"\w+_at": "[\d\/ :APM]+",`)
-	fixedPayload := []byte(re.ReplaceAllString(string(*payload), ``))
-
-	event, err := gh.ParseWebHook(eventName, fixedPayload)
+	event, err := gh.ParseWebHook(eventName, *payload)
 	if err != nil {
 		return err
 	}

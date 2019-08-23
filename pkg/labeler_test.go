@@ -73,7 +73,7 @@ func TestHandleEvent(t *testing.T) {
 		},
 	}
 
-	payloads := []string{"reopen_pr_brokentimestamp", "create_pr"}
+	payloads := []string{"create_pr", "reopen_pr"}
 	for _, file := range payloads {
 
 		payload, err := loadPayload(file)
