@@ -8,6 +8,31 @@ It is inspired by the example [Pull Request
 Labeller](https://github.com/actions/labeler), but intends to provide a
 richer set of options.
 
+## Installing
+
+Add a .github/workflows/main.yml file to your repository with these
+contents:
+
+	name: Label PRs
+
+	on:
+	  - pull_request
+
+	jobs:
+	  build:
+
+		runs-on: ubuntu-latest
+		
+		steps:
+		- uses: srvaroa/labeler@master
+		  env:
+			GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+Then, add a ./github/labeler.yml with the configuration as described
+below.
+
+## Configuration
+
 Configuration can be stored at `./github/labeler.yml` as a plain list of labels
 and a set of conditions for each.  When *all* conditions for a label match,
 then the Action will set the given label.  When *any* condition for a label
