@@ -29,6 +29,16 @@ func TestGetLabelerConfig(t *testing.T) {
 		"WOP": l.LabelMatcher{
 			Title: "^WOP:.*",
 		},
+		"S": l.LabelMatcher{
+			SizeBelow: "10",
+		},
+		"M": l.LabelMatcher{
+			SizeAbove: "9",
+			SizeBelow: "100",
+		},
+		"L": l.LabelMatcher{
+			SizeAbove: "100",
+		},
 	}
 
 	if !cmp.Equal(expect, *c) {

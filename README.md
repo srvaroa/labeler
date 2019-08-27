@@ -82,3 +82,30 @@ This condition is satisfied when the PR is in a [mergeable state](https://develo
 
     MyLabel:
       mergeable: true
+
+### PR size
+
+This condition is satisfied when the total number of changed lines in
+the PR is within given thresholds.
+
+The number of changed lines is calculated as the sum of all `additions +
+deletions` in the PR.
+
+For example, given this `./github/labeler.yml`:
+
+    S:
+      size-below: 10
+    M:
+      size-above: 9
+      size-below: 100
+    L:
+      size-above: 100
+
+These would be the labels assigned to some PRs, based on their size as
+reported by the [GitHub API](https://developer.github.com/v3/pulls).
+
+|PR|additions|deletions|Resulting labels|
+|---|---|---|---|
+|First example|1|1|S|
+|Second example|5|42|M|
+|Third example|68|148|L|

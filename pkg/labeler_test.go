@@ -116,6 +116,40 @@ func TestHandleEvent(t *testing.T) {
 			initialLabels:  []string{},
 			expectedLabels: []string{},
 		},
+		TestCase{
+			payloads: []string{"small_pr"},
+			name:     "Test the size_below rule",
+			config: LabelerConfig{
+				"S": LabelMatcher{
+					SizeBelow: "10",
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{"S"},
+		},
+		TestCase{
+			payloads: []string{"mid_pr"},
+			name:     "Test the size_below and size_above rules",
+			config: LabelerConfig{
+				"M": LabelMatcher{
+					SizeAbove: "9",
+					SizeBelow: "100",
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{"M"},
+		},
+		TestCase{
+			payloads: []string{"big_pr"},
+			name:     "Test the size_above rule",
+			config: LabelerConfig{
+				"L": LabelMatcher{
+					SizeAbove: "100",
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{"L"},
+		},
 	}
 
 	for _, tc := range testCases {
@@ -126,28 +160,31 @@ func TestHandleEvent(t *testing.T) {
 			}
 
 			fmt.Println(tc.name)
-			labeler := Labeler{
-				FetchRepoConfig: func(owner, repoName string) (*LabelerConfig, error) {
-					return &tc.config, nil
-				},
-				GetCurrentLabels: func(owner, repoName string, prNumber int) ([]string, error) {
-					return tc.initialLabels, nil
-				},
-				ReplaceLabelsForPr: func(owner, repoName string, prNumber int, labels []string) error {
-					sort.Strings(tc.expectedLabels)
-					sort.Strings(labels)
-					if reflect.DeepEqual(tc.expectedLabels, labels) {
-						return nil
-					}
-					return fmt.Errorf("%s: Expecting %+v, got %+v",
-						tc.name, tc.expectedLabels, labels)
-				},
-			}
-			err = labeler.HandleEvent("pull_request", &payload)
+			l := NewTestLabeler(t, tc)
+			err = l.HandleEvent("pull_request", &payload)
 			if err != nil {
 				t.Fatal(err)
 			}
 		}
 	}
+}
 
+func NewTestLabeler(t *testing.T, tc TestCase) Labeler {
+	return Labeler{
+		FetchRepoConfig: func(owner, repoName string) (*LabelerConfig, error) {
+			return &tc.config, nil
+		},
+		GetCurrentLabels: func(owner, repoName string, prNumber int) ([]string, error) {
+			return tc.initialLabels, nil
+		},
+		ReplaceLabelsForPr: func(owner, repoName string, prNumber int, labels []string) error {
+			sort.Strings(tc.expectedLabels)
+			sort.Strings(labels)
+			if reflect.DeepEqual(tc.expectedLabels, labels) {
+				return nil
+			}
+			return fmt.Errorf("%s: Expecting %+v, got %+v",
+				tc.name, tc.expectedLabels, labels)
+		},
+	}
 }

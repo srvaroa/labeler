@@ -3,6 +3,7 @@ package labeler
 import (
 	"fmt"
 	"log"
+	"math"
 	"regexp"
 	"strconv"
 
@@ -13,6 +14,8 @@ type LabelerConfig map[string]LabelMatcher
 type LabelMatcher struct {
 	Title     string
 	Mergeable string
+	SizeBelow string `yaml:"size-below"`
+	SizeAbove string `yaml:"size-above"`
 }
 
 // LabelUpdates Represents a request to update the set of labels
@@ -38,7 +41,7 @@ func NewTitleCondition() Condition {
 		},
 		Evaluate: func(pr *gh.PullRequest, matcher LabelMatcher) (bool, error) {
 			if len(matcher.Title) <= 0 {
-				return false, fmt.Errorf("Not applicable")
+				return false, fmt.Errorf("title is not set in config")
 			}
 			log.Printf("Matching `%s` against: `%s`", matcher.Title, pr.GetTitle())
 			isMatched, _ := regexp.Match(matcher.Title, []byte(pr.GetTitle()))
@@ -55,12 +58,39 @@ func NewIsMergeableCondition() Condition {
 		Evaluate: func(pr *gh.PullRequest, matcher LabelMatcher) (bool, error) {
 			b, err := strconv.ParseBool(matcher.Mergeable)
 			if err != nil {
-				return false, fmt.Errorf("Mergeable is not set in config")
+				return false, fmt.Errorf("mergeable is not set in config")
 			}
 			if b {
 				return pr.GetMergeable(), nil
 			}
 			return !pr.GetMergeable(), nil
+		},
+	}
+}
+
+func NewSizeCondition() Condition {
+	return Condition{
+		GetName: func() string {
+			return "Pull Request contains a number of changes"
+		},
+		Evaluate: func(pr *gh.PullRequest, matcher LabelMatcher) (bool, error) {
+			if len(matcher.SizeBelow) == 0 && len(matcher.SizeAbove) == 0 {
+				return false, fmt.Errorf("size-above and size-below are not set in config")
+			}
+			upperBound, err := strconv.ParseInt(matcher.SizeBelow, 0, 64)
+			if err != nil {
+				upperBound = math.MaxInt64
+				log.Printf("Upper boundary set to %d (config has invalid or empty value)", upperBound)
+			}
+			lowerBound, err := strconv.ParseInt(matcher.SizeAbove, 0, 32)
+			if err != nil || lowerBound < 0 {
+				lowerBound = 0
+				log.Printf("Lower boundary set to 0 (config has invalid or empty value)")
+			}
+			totalChanges := int64(math.Abs(float64(pr.GetAdditions() + pr.GetDeletions())))
+			log.Printf("Matching %d changes in PR against bounds: (%d, %d)", totalChanges, lowerBound, upperBound)
+			isWithinBounds := totalChanges > lowerBound && totalChanges < upperBound
+			return isWithinBounds, nil
 		},
 	}
 }
@@ -134,6 +164,7 @@ func (l *Labeler) findMatches(pr *gh.PullRequest, config *LabelerConfig) (LabelU
 	conditions := []Condition{
 		NewTitleCondition(),
 		NewIsMergeableCondition(),
+		NewSizeCondition(),
 	}
 
 	for label, matcher := range *config {
