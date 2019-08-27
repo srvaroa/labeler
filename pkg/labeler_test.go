@@ -18,6 +18,7 @@ func loadPayload(name string) ([]byte, error) {
 }
 
 type TestCase struct {
+	payloads       []string
 	name           string
 	config         LabelerConfig
 	initialLabels  []string
@@ -29,13 +30,15 @@ func TestHandleEvent(t *testing.T) {
 	// These all use the payload in payload files
 	testCases := []TestCase{
 		TestCase{
+			payloads:       []string{"create_pr", "reopen_pr"},
 			name:           "Empty config",
 			config:         LabelerConfig{},
 			initialLabels:  []string{"Fix"},
 			expectedLabels: []string{"Fix"},
 		},
 		TestCase{
-			name: "Config with no rules",
+			payloads: []string{"create_pr", "reopen_pr"},
+			name:     "Config with no rules",
 			config: LabelerConfig{
 				"WIP": LabelMatcher{},
 			},
@@ -43,7 +46,8 @@ func TestHandleEvent(t *testing.T) {
 			expectedLabels: []string{"Fix"},
 		},
 		TestCase{
-			name: "Add a label when not set and config matches",
+			payloads: []string{"create_pr", "reopen_pr"},
+			name:     "Add a label when not set and config matches",
 			config: LabelerConfig{
 				"WIP": LabelMatcher{
 					Title: "^WIP:.*",
@@ -53,7 +57,8 @@ func TestHandleEvent(t *testing.T) {
 			expectedLabels: []string{"WIP"},
 		},
 		TestCase{
-			name: "Remove a label when set and config does not match",
+			payloads: []string{"create_pr", "reopen_pr"},
+			name:     "Remove a label when set and config does not match",
 			config: LabelerConfig{
 				"Fix": LabelMatcher{
 					Title: "Fix: .*",
@@ -63,7 +68,8 @@ func TestHandleEvent(t *testing.T) {
 			expectedLabels: []string{},
 		},
 		TestCase{
-			name: "Respect a label when set, and not present in config",
+			payloads: []string{"create_pr", "reopen_pr"},
+			name:     "Respect a label when set, and not present in config",
 			config: LabelerConfig{
 				"Fix": LabelMatcher{
 					Title: "^Fix.*",
@@ -73,7 +79,8 @@ func TestHandleEvent(t *testing.T) {
 			expectedLabels: []string{"SomeLabel"},
 		},
 		TestCase{
-			name: "A combination of all cases",
+			payloads: []string{"create_pr", "reopen_pr"},
+			name:     "A combination of all cases",
 			config: LabelerConfig{
 				"WIP": LabelMatcher{
 					Title: "^WIP:.*",
@@ -86,7 +93,8 @@ func TestHandleEvent(t *testing.T) {
 			expectedLabels: []string{"WIP", "ShouldRespect"},
 		},
 		TestCase{
-			name: "Add a label with two conditions, both matching",
+			payloads: []string{"create_pr", "reopen_pr"},
+			name:     "Add a label with two conditions, both matching",
 			config: LabelerConfig{
 				"WIP": LabelMatcher{
 					Title:     "^WIP:.*",
@@ -97,7 +105,8 @@ func TestHandleEvent(t *testing.T) {
 			expectedLabels: []string{"WIP"},
 		},
 		TestCase{
-			name: "Add a label with two conditions, one not matching",
+			payloads: []string{"create_pr", "reopen_pr"},
+			name:     "Add a label with two conditions, one not matching",
 			config: LabelerConfig{
 				"WIP": LabelMatcher{
 					Title:     "^WIP:.*",
@@ -109,15 +118,13 @@ func TestHandleEvent(t *testing.T) {
 		},
 	}
 
-	payloads := []string{"create_pr", "reopen_pr"}
-	for _, file := range payloads {
+	for _, tc := range testCases {
+		for _, file := range tc.payloads {
+			payload, err := loadPayload(file)
+			if err != nil {
+				t.Fatal(err)
+			}
 
-		payload, err := loadPayload(file)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		for _, tc := range testCases {
 			fmt.Println(tc.name)
 			labeler := Labeler{
 				FetchRepoConfig: func(owner, repoName string) (*LabelerConfig, error) {
