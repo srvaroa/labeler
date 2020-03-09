@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-yaml/yaml"
 	"github.com/google/go-github/v27/github"
-	labeler "github.com/srvaroa/labeler/pkg"
+	labeler "github.com/viaduct-ai/labeler/pkg"
 	"golang.org/x/oauth2"
 )
 

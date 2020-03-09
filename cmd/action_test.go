@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	l "github.com/srvaroa/labeler/pkg"
+	l "github.com/viaduct-ai/labeler/pkg"
 )
 
 func TestGetLabelerConfig(t *testing.T) {

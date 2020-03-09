@@ -117,6 +117,17 @@ func TestHandleEvent(t *testing.T) {
 			expectedLabels: []string{},
 		},
 		TestCase{
+			payloads: []string{"create_pr", "reopen_pr"},
+			name:     "Add a label with two conditions, one not matching",
+			config: LabelerConfig{
+				"WIP": LabelMatcher{
+					Title: "^((?!WIP).)*$",
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{},
+		},
+		TestCase{
 			payloads: []string{"small_pr"},
 			name:     "Test the size_below rule",
 			config: LabelerConfig{
