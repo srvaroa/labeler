@@ -21,7 +21,12 @@ func TestGetLabelerConfig(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	c := getLabelerConfig(&contents)
+	var c *l.LabelerConfig
+	c, err = getLabelerConfig(&contents)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	expect := l.LabelerConfig{
 		"WIP": l.LabelMatcher{
 			Title: "^WIP:.*",

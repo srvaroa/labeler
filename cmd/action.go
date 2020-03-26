@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -27,12 +26,18 @@ func main() {
 	// actions to use this approach, and I will need to consider
 	// whatever branch is set as main in the repo settings, so leaving
 	// as this for now.
-	configRaw := getRepoFile(gh,
+	configRaw, err := getRepoFile(gh,
 		os.Getenv("GITHUB_REPOSITORY"),
 		os.Getenv("INPUT_CONFIG_PATH"),
 		os.Getenv("GITHUB_SHA"))
+	if err != nil {
+		return
+	}
 
-	config := getLabelerConfig(configRaw)
+	config, err := getLabelerConfig(configRaw)
+	if err != nil {
+		return
+	}
 
 	log.Printf("Re-evaluating labels on %s@%s",
 		os.Getenv("GITHUB_REPOSITORY"),
@@ -40,14 +45,14 @@ func main() {
 
 	log.Printf("Trigger event: %s", os.Getenv("GITHUB_EVENT_NAME"))
 
-	err := newLabeler(gh, config).HandleEvent(eventName, eventPayload)
+	err = newLabeler(gh, config).HandleEvent(eventName, eventPayload)
 	if err != nil {
 		log.Printf("Unable to execute action: %+v", err)
 	}
 
 }
 
-func getRepoFile(gh *github.Client, repo, file, sha string) *[]byte {
+func getRepoFile(gh *github.Client, repo, file, sha string) (*[]byte, error) {
 
 	t := strings.Split(repo, "/")
 	owner, repoName := t[0], t[1]
@@ -65,28 +70,25 @@ func getRepoFile(gh *github.Client, repo, file, sha string) *[]byte {
 	}
 
 	if err != nil {
-		log.Fatalf("Unable to load configuration from %s@%s/%s: %s",
+		log.Printf("Unable to load configuration from %s@%s/%s: %s",
 			repo, sha, file, err)
+		return nil, err
 	}
 
 	log.Printf("Loaded config from %s@%s:%s\n--\n%s", repo, sha, file, content)
 
 	raw := []byte(content)
-	return &raw
+	return &raw, err
 }
 
 // getLabelerConfig builds a LabelerConfig from a raw yaml
-func getLabelerConfig(configRaw *[]byte) *labeler.LabelerConfig {
-
+func getLabelerConfig(configRaw *[]byte) (*labeler.LabelerConfig, error) {
 	var c labeler.LabelerConfig
-
 	err := yaml.Unmarshal(*configRaw, &c)
 	if err != nil {
-		log.Fatalf("Unable to unmarshall config --\n%s\n--, %s", configRaw, err)
+		log.Printf("Unable to unmarshall config --\n%s\n--, %s", configRaw, err)
 	}
-	fmt.Printf("The config: %+v", c)
-
-	return &c
+	return &c, err
 }
 
 func getGithubClient() *github.Client {
