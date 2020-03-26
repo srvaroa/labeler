@@ -10,7 +10,7 @@ richer set of options.
 
 ## Installing
 
-Add a .github/workflows/main.yml file to your repository with these
+Add a file `.github/workflows/main.yml` to your repository with these
 contents:
 
 	name: Label PRs
@@ -28,8 +28,16 @@ contents:
 		  env:
 			GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
-Then, add a ./github/labeler.yml with the configuration as described
-below.
+Then add a new file `./github/labeler.yml` with the configuration as
+described below in the `Configuration` section.
+
+This action will avoid failing in all cases, so it's worth looking at
+execution logs just in case.  Typical errors are:
+
+* The configuration file is non existent, or has invalid yaml.
+* Running the action from a fork, as the `GITHUB_TOKEN` has not enough
+  permissions to label the main repository ([issue for
+  solving this](https://github.com/srvaroa/labeler/issues/3))
 
 ## Configuration
 
