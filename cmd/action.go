@@ -42,7 +42,7 @@ func main() {
 
 	err := newLabeler(gh, config).HandleEvent(eventName, eventPayload)
 	if err != nil {
-		log.Fatalf("Unable to execute action: %+v", err)
+		log.Printf("Unable to execute action: %+v", err)
 	}
 
 }
