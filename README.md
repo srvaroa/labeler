@@ -31,8 +31,9 @@ contents:
 Then add a new file `./github/labeler.yml` with the configuration as
 described below in the `Configuration` section.
 
-This action will avoid failing in all cases, so it's worth looking at
-execution logs just in case.  Typical errors are:
+This action will avoid failing in all cases, so if you're experiencing
+unexpected behaviour it's worth looking at execution logs just in case.
+Typical errors are:
 
 * The configuration file is non existent, or has invalid yaml.
 * Running the action from a fork, as the `GITHUB_TOKEN` has not enough
