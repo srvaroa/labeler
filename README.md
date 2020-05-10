@@ -79,14 +79,25 @@ Below are the conditions currently supported.
 
 ### Regex on title
 
-This condition is satisfied when the PR title matches on the given regex.
+This condition is satisfied when the PR title matches on the given regex.  This example:
 
     WIP:
       title: "^WIP:.*"
+      
+would label as "WIP" any PR whose title starts with "WIP".
+      
+### Regex on branch name
+
+This condition is satisfied when the PR's branch name matches on the given regex.
+
+    MyTag:
+      branch: "^fix:.*"
+      
+Would label as "MyTag" any PR with a branch starting with "fix:".
 
 ### Mergeable status
 
-This condition is satisfied when the PR is in a [mergeable state](https://developer.github.com/v3/pulls/#response-1).
+This condition is satisfied when the PR is in a [mergeable state](https://developer.github.com/v3/pulls/#response-1).  For example:
 
     MyLabel:
       mergeable: true
