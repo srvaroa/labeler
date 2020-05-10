@@ -2,18 +2,24 @@ package labeler
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"math"
+	"net/http"
+	"os"
 	"regexp"
 	"strconv"
+	"strings"
 
 	gh "github.com/google/go-github/v27/github"
+	"github.com/waigani/diffparser"
 )
 
 type LabelerConfig map[string]LabelMatcher
 type LabelMatcher struct {
 	Title     string
 	Branch    string
+	Files     []string
 	Mergeable string
 	SizeBelow string `yaml:"size-below"`
 	SizeAbove string `yaml:"size-above"`
@@ -64,6 +70,54 @@ func NewBranchCondition() Condition {
 			log.Printf("Matching `%s` against: `%s`", matcher.Branch, prBranchName)
 			isMatched, _ := regexp.Match(matcher.Title, []byte(prBranchName))
 			return isMatched, nil
+		},
+	}
+}
+
+func NewFilesCondition(pr *gh.PullRequest) Condition {
+	ghToken := os.Getenv("GITHUB_TOKEN")
+	diffReq, _ := http.NewRequest("GET", pr.GetDiffURL(), nil)
+	diffReq.Header.Add("Authorization", "Bearer "+ghToken)
+	diffRes, _ := http.DefaultClient.Do(diffReq)
+
+	defer diffRes.Body.Close()
+
+	var diffRaw []byte
+	prFiles := make([]string, 0)
+	if diffRes.StatusCode == http.StatusOK {
+		diffRaw, _ = ioutil.ReadAll(diffRes.Body)
+
+		diff, _ := diffparser.Parse(string(diffRaw))
+		prFilesSet := map[string]struct{}{}
+		for _, file := range diff.Files {
+			prFilesSet[file.OrigName] = struct{}{}
+			prFilesSet[file.NewName] = struct{}{}
+		}
+		for k := range prFilesSet {
+			prFiles = append(prFiles, k)
+		}
+	}
+
+	return Condition{
+		GetName: func() string {
+			return "File matches regex"
+		},
+		Evaluate: func(pr *gh.PullRequest, matcher LabelMatcher) (bool, error) {
+			if len(matcher.Files) <= 0 {
+				return false, fmt.Errorf("files are not set in config")
+			}
+
+			log.Printf("Matching `%s` against: %s", strings.Join(matcher.Files, ", "), strings.Join(prFiles, ", "))
+			for _, file := range matcher.Files {
+				for _, prFile := range prFiles {
+					isMatched, _ := regexp.Match(file, []byte(prFile))
+					if isMatched == true {
+						log.Printf("Matched `%s` against: `%s`", prFile, file)
+						return isMatched, nil
+					}
+				}
+			}
+			return false, nil
 		},
 	}
 }
@@ -184,6 +238,7 @@ func (l *Labeler) findMatches(pr *gh.PullRequest, config *LabelerConfig) (LabelU
 		NewBranchCondition(),
 		NewIsMergeableCondition(),
 		NewSizeCondition(),
+		NewFilesCondition(pr),
 	}
 
 	for label, matcher := range *config {

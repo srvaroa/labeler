@@ -161,6 +161,19 @@ func TestHandleEvent(t *testing.T) {
 			initialLabels:  []string{},
 			expectedLabels: []string{"Branch"},
 		},
+		TestCase{
+			payloads: []string{"diff_pr"},
+			name:     "Test the branch rule",
+			config: LabelerConfig{
+				"Files": LabelMatcher{
+					Files: []string{
+						"^pkg/.*_test.go",
+					},
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{"Files"},
+		},
 	}
 
 	for _, tc := range testCases {
