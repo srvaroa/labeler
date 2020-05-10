@@ -150,6 +150,17 @@ func TestHandleEvent(t *testing.T) {
 			initialLabels:  []string{},
 			expectedLabels: []string{"L"},
 		},
+		TestCase{
+			payloads: []string{"small_pr"},
+			name:     "Test the branch rule",
+			config: LabelerConfig{
+				"Branch": LabelMatcher{
+					Branch: "^srvaroa-patch.*",
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{"Branch"},
+		},
 	}
 
 	for _, tc := range testCases {

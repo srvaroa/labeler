@@ -13,6 +13,7 @@ import (
 type LabelerConfig map[string]LabelMatcher
 type LabelMatcher struct {
 	Title     string
+	Branch    string
 	Mergeable string
 	SizeBelow string `yaml:"size-below"`
 	SizeAbove string `yaml:"size-above"`
@@ -45,6 +46,23 @@ func NewTitleCondition() Condition {
 			}
 			log.Printf("Matching `%s` against: `%s`", matcher.Title, pr.GetTitle())
 			isMatched, _ := regexp.Match(matcher.Title, []byte(pr.GetTitle()))
+			return isMatched, nil
+		},
+	}
+}
+
+func NewBranchCondition() Condition {
+	return Condition{
+		GetName: func() string {
+			return "Branch matches regex"
+		},
+		Evaluate: func(pr *gh.PullRequest, matcher LabelMatcher) (bool, error) {
+			if len(matcher.Branch) <= 0 {
+				return false, fmt.Errorf("branch is not set in config")
+			}
+			prBranchName := pr.Head.GetRef()
+			log.Printf("Matching `%s` against: `%s`", matcher.Branch, prBranchName)
+			isMatched, _ := regexp.Match(matcher.Title, []byte(prBranchName))
 			return isMatched, nil
 		},
 	}
@@ -163,6 +181,7 @@ func (l *Labeler) findMatches(pr *gh.PullRequest, config *LabelerConfig) (LabelU
 	}
 	conditions := []Condition{
 		NewTitleCondition(),
+		NewBranchCondition(),
 		NewIsMergeableCondition(),
 		NewSizeCondition(),
 	}
