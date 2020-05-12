@@ -152,7 +152,7 @@ func TestHandleEvent(t *testing.T) {
 		},
 		TestCase{
 			payloads: []string{"small_pr"},
-			name:     "Test the branch rule",
+			name:     "Test the branch rule (matching)",
 			config: LabelerConfig{
 				"Branch": LabelMatcher{
 					Branch: "^srvaroa-patch.*",
@@ -160,6 +160,17 @@ func TestHandleEvent(t *testing.T) {
 			},
 			initialLabels:  []string{},
 			expectedLabels: []string{"Branch"},
+		},
+		TestCase{
+			payloads: []string{"small_pr"},
+			name:     "Test the branch rule (not matching)",
+			config: LabelerConfig{
+				"Branch": LabelMatcher{
+					Branch: "^does/not-match/*",
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{},
 		},
 		TestCase{
 			payloads: []string{"diff_pr"},

@@ -68,7 +68,7 @@ func NewBranchCondition() Condition {
 			}
 			prBranchName := pr.Head.GetRef()
 			log.Printf("Matching `%s` against: `%s`", matcher.Branch, prBranchName)
-			isMatched, _ := regexp.Match(matcher.Title, []byte(prBranchName))
+			isMatched, _ := regexp.Match(matcher.Branch, []byte(prBranchName))
 			return isMatched, nil
 		},
 	}
