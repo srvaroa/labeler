@@ -74,7 +74,7 @@ func NewBranchCondition() Condition {
 	}
 }
 
-func NewFilesCondition(pr *gh.PullRequest) Condition {
+func NewFilesCondition() Condition {
 	return Condition{
 		GetName: func() string {
 			return "File matches regex"
@@ -220,7 +220,7 @@ func (l *Labeler) findMatches(pr *gh.PullRequest, config *LabelerConfig) (LabelU
 		NewBranchCondition(),
 		NewIsMergeableCondition(),
 		NewSizeCondition(),
-		NewFilesCondition(pr),
+		NewFilesCondition(),
 	}
 
 	for label, matcher := range *config {
