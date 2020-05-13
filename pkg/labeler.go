@@ -75,29 +75,6 @@ func NewBranchCondition() Condition {
 }
 
 func NewFilesCondition(pr *gh.PullRequest) Condition {
-	ghToken := os.Getenv("GITHUB_TOKEN")
-	diffReq, _ := http.NewRequest("GET", pr.GetDiffURL(), nil)
-	diffReq.Header.Add("Authorization", "Bearer "+ghToken)
-	diffRes, _ := http.DefaultClient.Do(diffReq)
-
-	defer diffRes.Body.Close()
-
-	var diffRaw []byte
-	prFiles := make([]string, 0)
-	if diffRes.StatusCode == http.StatusOK {
-		diffRaw, _ = ioutil.ReadAll(diffRes.Body)
-
-		diff, _ := diffparser.Parse(string(diffRaw))
-		prFilesSet := map[string]struct{}{}
-		for _, file := range diff.Files {
-			prFilesSet[file.OrigName] = struct{}{}
-			prFilesSet[file.NewName] = struct{}{}
-		}
-		for k := range prFilesSet {
-			prFiles = append(prFiles, k)
-		}
-	}
-
 	return Condition{
 		GetName: func() string {
 			return "File matches regex"
@@ -105,6 +82,11 @@ func NewFilesCondition(pr *gh.PullRequest) Condition {
 		Evaluate: func(pr *gh.PullRequest, matcher LabelMatcher) (bool, error) {
 			if len(matcher.Files) <= 0 {
 				return false, fmt.Errorf("Files are not set in config")
+			}
+
+			prFiles, err := getPrFileNames(pr)
+			if err != nil {
+				return false, err
 			}
 
 			log.Printf("Matching `%s` against: %s", strings.Join(matcher.Files, ", "), strings.Join(prFiles, ", "))
@@ -258,4 +240,47 @@ func (l *Labeler) findMatches(pr *gh.PullRequest, config *LabelerConfig) (LabelU
 	}
 
 	return labelUpdates, nil
+}
+
+// getPrFileNames returns all of the file names (old and new) of files changed in the given PR
+func getPrFileNames(pr *gh.PullRequest) ([]string, error) {
+	ghToken := os.Getenv("GITHUB_TOKEN")
+	diffReq, err := http.NewRequest("GET", pr.GetDiffURL(), nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	diffReq.Header.Add("Authorization", "Bearer "+ghToken)
+	diffRes, err := http.DefaultClient.Do(diffReq)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer diffRes.Body.Close()
+
+	var diffRaw []byte
+	prFiles := make([]string, 0)
+	if diffRes.StatusCode == http.StatusOK {
+		diffRaw, err = ioutil.ReadAll(diffRes.Body)
+
+		if err != nil {
+			return nil, err
+		}
+
+		diff, _ := diffparser.Parse(string(diffRaw))
+		prFilesSet := map[string]struct{}{}
+		// Place in a set to remove duplicates
+		for _, file := range diff.Files {
+			prFilesSet[file.OrigName] = struct{}{}
+			prFilesSet[file.NewName] = struct{}{}
+		}
+		// Convert to list to make it easier to consume
+		for k := range prFilesSet {
+			prFiles = append(prFiles, k)
+		}
+	}
+
+	return prFiles, nil
 }
