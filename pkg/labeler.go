@@ -104,15 +104,15 @@ func NewFilesCondition(pr *gh.PullRequest) Condition {
 		},
 		Evaluate: func(pr *gh.PullRequest, matcher LabelMatcher) (bool, error) {
 			if len(matcher.Files) <= 0 {
-				return false, fmt.Errorf("files are not set in config")
+				return false, fmt.Errorf("Files are not set in config")
 			}
 
 			log.Printf("Matching `%s` against: %s", strings.Join(matcher.Files, ", "), strings.Join(prFiles, ", "))
-			for _, file := range matcher.Files {
+			for _, fileMatcher := range matcher.Files {
 				for _, prFile := range prFiles {
-					isMatched, _ := regexp.Match(file, []byte(prFile))
-					if isMatched == true {
-						log.Printf("Matched `%s` against: `%s`", prFile, file)
+					isMatched, _ := regexp.Match(fileMatcher, []byte(prFile))
+					if isMatched {
+						log.Printf("Matched `%s` against: `%s`", prFile, fileMatcher)
 						return isMatched, nil
 					}
 				}
