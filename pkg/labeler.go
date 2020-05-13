@@ -75,6 +75,8 @@ func NewBranchCondition() Condition {
 }
 
 func NewFilesCondition() Condition {
+	prFiles := []string{}
+
 	return Condition{
 		GetName: func() string {
 			return "File matches regex"
@@ -84,9 +86,12 @@ func NewFilesCondition() Condition {
 				return false, fmt.Errorf("Files are not set in config")
 			}
 
-			prFiles, err := getPrFileNames(pr)
-			if err != nil {
-				return false, err
+			if len(prFiles) == 0 {
+				var err error
+				prFiles, err = getPrFileNames(pr)
+				if err != nil {
+					return false, err
+				}
 			}
 
 			log.Printf("Matching `%s` against: %s", strings.Join(matcher.Files, ", "), strings.Join(prFiles, ", "))
