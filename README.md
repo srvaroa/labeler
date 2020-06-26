@@ -85,6 +85,21 @@ This condition is satisfied when the PR title matches on the given regex.
     WIP:
       title: "^WIP:.*"
 
+### Regex on branch
+
+This condition is satisfied when the PR branch matches on the given regex.
+
+    Feature:
+      branch: "^feature/.*"
+
+### Regex on PR files
+
+This condition is satisfied when any of the PR files matches on the given regexs.
+
+    Tests:
+      files: 
+        - "cmd/.*_tests.go"
+
 ### Mergeable status
 
 This condition is satisfied when the PR is in a [mergeable state](https://developer.github.com/v3/pulls/#response-1).
