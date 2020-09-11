@@ -1,7 +1,8 @@
 TestLabel:
   title: ".*"
 TestFileMatch:
-  files: 
+  files:
+    - "\.github/.*"
     - "cmd/.*.go"
     - "pkg/.*.go"
   
