@@ -1,0 +1,15 @@
+version: 1
+labels:
+  - label: WIP
+    branch: "wip"
+  - label: WIP
+    title: "^WIP:.*"
+  - label: WOP
+    title: "^WOP:.*"
+  - label: S
+    size-below: 10
+  - label: M
+    size-above: 9
+    size-below: 100
+  - label: L
+    size-above: 100

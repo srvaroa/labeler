@@ -20,7 +20,7 @@ func loadPayload(name string) ([]byte, error) {
 type TestCase struct {
 	payloads       []string
 	name           string
-	config         LabelerConfig
+	config         LabelerConfigV1
 	initialLabels  []string
 	expectedLabels []string
 }
@@ -32,15 +32,20 @@ func TestHandleEvent(t *testing.T) {
 		TestCase{
 			payloads:       []string{"create_pr", "reopen_pr"},
 			name:           "Empty config",
-			config:         LabelerConfig{},
+			config:         LabelerConfigV1{},
 			initialLabels:  []string{"Fix"},
 			expectedLabels: []string{"Fix"},
 		},
 		TestCase{
 			payloads: []string{"create_pr", "reopen_pr"},
 			name:     "Config with no rules",
-			config: LabelerConfig{
-				"WIP": LabelMatcher{},
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					LabelMatcher{
+						Label: "WIP",
+					},
+				},
 			},
 			initialLabels:  []string{"Fix"},
 			expectedLabels: []string{"Fix"},
@@ -48,9 +53,13 @@ func TestHandleEvent(t *testing.T) {
 		TestCase{
 			payloads: []string{"create_pr", "reopen_pr"},
 			name:     "Add a label when not set and config matches",
-			config: LabelerConfig{
-				"WIP": LabelMatcher{
-					Title: "^WIP:.*",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					LabelMatcher{
+						Label: "WIP",
+						Title: "^WIP:.*",
+					},
 				},
 			},
 			initialLabels:  []string{},
@@ -59,9 +68,13 @@ func TestHandleEvent(t *testing.T) {
 		TestCase{
 			payloads: []string{"create_pr", "reopen_pr"},
 			name:     "Remove a label when set and config does not match",
-			config: LabelerConfig{
-				"Fix": LabelMatcher{
-					Title: "Fix: .*",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					LabelMatcher{
+						Label: "Fix",
+						Title: "Fix: .*",
+					},
 				},
 			},
 			initialLabels:  []string{"Fix"},
@@ -70,9 +83,13 @@ func TestHandleEvent(t *testing.T) {
 		TestCase{
 			payloads: []string{"create_pr", "reopen_pr"},
 			name:     "Respect a label when set, and not present in config",
-			config: LabelerConfig{
-				"Fix": LabelMatcher{
-					Title: "^Fix.*",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					LabelMatcher{
+						Label: "Fix",
+						Title: "^Fix.*",
+					},
 				},
 			},
 			initialLabels:  []string{"SomeLabel"},
@@ -81,12 +98,17 @@ func TestHandleEvent(t *testing.T) {
 		TestCase{
 			payloads: []string{"create_pr", "reopen_pr"},
 			name:     "A combination of all cases",
-			config: LabelerConfig{
-				"WIP": LabelMatcher{
-					Title: "^WIP:.*",
-				},
-				"ShouldRemove": LabelMatcher{
-					Title: "^MEH.*",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					LabelMatcher{
+						Label: "WIP",
+						Title: "^WIP:.*",
+					},
+					LabelMatcher{
+						Label: "ShouldRemove",
+						Title: "^MEH.*",
+					},
 				},
 			},
 			initialLabels:  []string{"ShouldRemove", "ShouldRespect"},
@@ -95,10 +117,14 @@ func TestHandleEvent(t *testing.T) {
 		TestCase{
 			payloads: []string{"create_pr", "reopen_pr"},
 			name:     "Add a label with two conditions, both matching",
-			config: LabelerConfig{
-				"WIP": LabelMatcher{
-					Title:     "^WIP:.*",
-					Mergeable: "False",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					LabelMatcher{
+						Label:     "WIP",
+						Title:     "^WIP:.*",
+						Mergeable: "False",
+					},
 				},
 			},
 			initialLabels:  []string{},
@@ -107,10 +133,14 @@ func TestHandleEvent(t *testing.T) {
 		TestCase{
 			payloads: []string{"create_pr", "reopen_pr"},
 			name:     "Add a label with two conditions, one not matching (1)",
-			config: LabelerConfig{
-				"WIP": LabelMatcher{
-					Title:     "^WIP:.*",
-					Mergeable: "True",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					LabelMatcher{
+						Label:     "WIP",
+						Title:     "^WIP:.*",
+						Mergeable: "True",
+					},
 				},
 			},
 			initialLabels:  []string{},
@@ -121,10 +151,14 @@ func TestHandleEvent(t *testing.T) {
 			// condition, while previous ones are false
 			payloads: []string{"create_pr", "reopen_pr"},
 			name:     "Add a label with two conditions, one not matching (2)",
-			config: LabelerConfig{
-				"WIP": LabelMatcher{
-					Title:     "^DOES NOT MATCH:.*",
-					Mergeable: "False",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					LabelMatcher{
+						Label:     "WIP",
+						Title:     "^DOES NOT MATCH:.*",
+						Mergeable: "False",
+					},
 				},
 			},
 			initialLabels:  []string{},
@@ -133,9 +167,13 @@ func TestHandleEvent(t *testing.T) {
 		TestCase{
 			payloads: []string{"small_pr"},
 			name:     "Test the size_below rule",
-			config: LabelerConfig{
-				"S": LabelMatcher{
-					SizeBelow: "10",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					LabelMatcher{
+						Label:     "S",
+						SizeBelow: "10",
+					},
 				},
 			},
 			initialLabels:  []string{},
@@ -144,10 +182,14 @@ func TestHandleEvent(t *testing.T) {
 		TestCase{
 			payloads: []string{"mid_pr"},
 			name:     "Test the size_below and size_above rules",
-			config: LabelerConfig{
-				"M": LabelMatcher{
-					SizeAbove: "9",
-					SizeBelow: "100",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					LabelMatcher{
+						Label:     "M",
+						SizeAbove: "9",
+						SizeBelow: "100",
+					},
 				},
 			},
 			initialLabels:  []string{},
@@ -156,9 +198,13 @@ func TestHandleEvent(t *testing.T) {
 		TestCase{
 			payloads: []string{"big_pr"},
 			name:     "Test the size_above rule",
-			config: LabelerConfig{
-				"L": LabelMatcher{
-					SizeAbove: "100",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					LabelMatcher{
+						Label:     "L",
+						SizeAbove: "100",
+					},
 				},
 			},
 			initialLabels:  []string{},
@@ -167,9 +213,13 @@ func TestHandleEvent(t *testing.T) {
 		TestCase{
 			payloads: []string{"small_pr"},
 			name:     "Test the branch rule (matching)",
-			config: LabelerConfig{
-				"Branch": LabelMatcher{
-					Branch: "^srvaroa-patch.*",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					LabelMatcher{
+						Label:  "Branch",
+						Branch: "^srvaroa-patch.*",
+					},
 				},
 			},
 			initialLabels:  []string{},
@@ -178,9 +228,13 @@ func TestHandleEvent(t *testing.T) {
 		TestCase{
 			payloads: []string{"small_pr"},
 			name:     "Test the branch rule (not matching)",
-			config: LabelerConfig{
-				"Branch": LabelMatcher{
-					Branch: "^does/not-match/*",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					LabelMatcher{
+						Label:  "Branch",
+						Branch: "^does/not-match/*",
+					},
 				},
 			},
 			initialLabels:  []string{},
@@ -188,16 +242,39 @@ func TestHandleEvent(t *testing.T) {
 		},
 		TestCase{
 			payloads: []string{"diff_pr"},
-			name:     "Test the branch rule",
-			config: LabelerConfig{
-				"Files": LabelMatcher{
-					Files: []string{
-						"^pkg/.*_test.go",
+			name:     "Test the files rule",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					LabelMatcher{
+						Label: "Files",
+						Files: []string{
+							"^pkg/.*_test.go",
+						},
 					},
 				},
 			},
 			initialLabels:  []string{},
 			expectedLabels: []string{"Files"},
+		},
+		TestCase{
+			payloads: []string{"small_pr"},
+			name:     "Multiple conditions for the same tag function as OR",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					LabelMatcher{
+						Label:  "Branch",
+						Branch: "^srvaroa-patch.*",
+					},
+					LabelMatcher{
+						Label:  "Branch",
+						Branch: "WONT MATCH",
+					},
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{"Branch"},
 		},
 	}
 
@@ -220,7 +297,7 @@ func TestHandleEvent(t *testing.T) {
 
 func NewTestLabeler(t *testing.T, tc TestCase) Labeler {
 	return Labeler{
-		FetchRepoConfig: func(owner, repoName string) (*LabelerConfig, error) {
+		FetchRepoConfig: func(owner, repoName string) (*LabelerConfigV1, error) {
 			return &tc.config, nil
 		},
 		GetCurrentLabels: func(owner, repoName string, prNumber int) ([]string, error) {

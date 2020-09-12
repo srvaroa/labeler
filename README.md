@@ -42,31 +42,40 @@ Typical errors are:
 
 ## Configuration
 
-Configuration can be stored at `./github/labeler.yml` as a plain list of labels
-and a set of conditions for each.  When *all* conditions for a label match,
-then the Action will set the given label.  When *any* condition for a label
-does not match, then the Action will unset the given label.
+Configuration can be stored at `./github/labeler.yml` as a plain list of
+label matchers, which consist of a label and a set of conditions for
+each.  When *all* conditions for a label match, then the Action will set
+the given label.  When *any* condition for a label does not match, then
+the Action will unset the given label.
 
-    <label>:
+Here is an example of a matcher for label "Example":
+
+      <label>: "Example"
       <condition_name>: <condition_parameters>
       <condition_name>: <condition_parameters>
 
-For example, given this `./github/labeler.yml`:
+For example, this `./github/labeler.yml` contains a single matcher with
+a single condition:
 
-      WIP:
-        title: "^WIP:.*"
+    version: 2
+    labels:
+      - label: "WIP"
+	title: "^WIP:.*"
 
 A Pull Request with title "WIP: this is work in progress" would be labelled as
 `WIP`.  If the Pull Request title changes to "This is done", then the `WIP`
 label would be removed.
 
-Each label may combine multiple conditions.  The label will be applied if *all*
-conditions are satisfied, removed otherwise.
+Each label may combine multiple conditions.  The action combines all
+conditions with an AND operation.  That is, the label will be applied if
+*all* conditions are satisfied, removed otherwise.
 
 For example, given this `./github/labeler.yml`:
 
-      WIP:
-        title: "^WIP:.*"
+    version: 2
+    labels:
+      - label: "WIP"
+	title: "^WIP:.*"
         mergeable: false
 
 A Pull Request with title "WIP: this is work in progress" *and* not in a
@@ -74,38 +83,47 @@ mergeable state would be labelled as `WIP`.  If the Pull Request title changes
 to "This is done", or it becomes mergeable, then the `WIP` label would be
 removed.
 
+If you wish to apply an OR, you may set multiple matchers for the same
+label. For example:
+
+    version: 2
+    labels:
+      - label: "WIP"
+	title: "^WIP:.*"
+      - label: "WIP"
+        mergeable: false
+
+The `WIP` label will be set if the title matches `^WIP:.*` OR the label
+is not in a mergeable state.
+
 ## Conditions
 
-Below are the conditions currently supported.
+Below are the conditions currently supported in label matchers.
 
 ### Regex on title
 
 This condition is satisfied when the PR title matches on the given regex.
 
-    WIP:
-      title: "^WIP:.*"
+    title: "^WIP:.*"
 
 ### Regex on branch
 
 This condition is satisfied when the PR branch matches on the given regex.
 
-    Feature:
-      branch: "^feature/.*"
+    branch: "^feature/.*"
 
 ### Regex on PR files
 
 This condition is satisfied when any of the PR files matches on the given regexs.
 
-    Tests:
-      files: 
-        - "cmd/.*_tests.go"
+    files: 
+      - "cmd/.*_tests.go"
 
 ### Mergeable status
 
 This condition is satisfied when the PR is in a [mergeable state](https://developer.github.com/v3/pulls/#response-1).
 
-    MyLabel:
-      mergeable: true
+    mergeable: true
 
 ### PR size
 
@@ -117,12 +135,12 @@ deletions` in the PR.
 
 For example, given this `./github/labeler.yml`:
 
-    S:
+    - label: "S"
       size-below: 10
-    M:
+    - label: "M":
       size-above: 9
       size-below: 100
-    L:
+    - label: "L":
       size-above: 100
 
 These would be the labels assigned to some PRs, based on their size as
