@@ -236,7 +236,14 @@ func (l *Labeler) findMatches(pr *gh.PullRequest, config *LabelerConfig) (LabelU
 				continue
 			}
 
-			labelUpdates.set[label] = isMatched
+			prev, ok := labelUpdates.set[label]
+
+			if ok { // Other conditions were evaluated for the label
+				labelUpdates.set[label] = prev && isMatched
+			} else { // First condition evaluated for this label
+				labelUpdates.set[label] = isMatched
+			}
+
 			log.Printf("%s: condition %s yields %t", label, c.GetName(), isMatched)
 			if isMatched {
 				continue
