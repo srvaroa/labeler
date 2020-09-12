@@ -106,11 +106,25 @@ func TestHandleEvent(t *testing.T) {
 		},
 		TestCase{
 			payloads: []string{"create_pr", "reopen_pr"},
-			name:     "Add a label with two conditions, one not matching",
+			name:     "Add a label with two conditions, one not matching (1)",
 			config: LabelerConfig{
 				"WIP": LabelMatcher{
 					Title:     "^WIP:.*",
 					Mergeable: "True",
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{},
+		},
+		TestCase{
+			// covers evaluation order making a True in the last
+			// condition, while previous ones are false
+			payloads: []string{"create_pr", "reopen_pr"},
+			name:     "Add a label with two conditions, one not matching (2)",
+			config: LabelerConfig{
+				"WIP": LabelMatcher{
+					Title:     "^DOES NOT MATCH:.*",
+					Mergeable: "False",
 				},
 			},
 			initialLabels:  []string{},
