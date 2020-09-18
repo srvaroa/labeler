@@ -57,7 +57,7 @@ Here is an example of a matcher for label "Example":
 For example, this `./github/labeler.yml` contains a single matcher with
 a single condition:
 
-    version: 2
+    version: 1
     labels:
       - label: "WIP"
 	title: "^WIP:.*"
@@ -72,7 +72,7 @@ conditions with an AND operation.  That is, the label will be applied if
 
 For example, given this `./github/labeler.yml`:
 
-    version: 2
+    version: 1
     labels:
       - label: "WIP"
 	title: "^WIP:.*"
@@ -86,7 +86,7 @@ removed.
 If you wish to apply an OR, you may set multiple matchers for the same
 label. For example:
 
-    version: 2
+    version: 1
     labels:
       - label: "WIP"
 	title: "^WIP:.*"
