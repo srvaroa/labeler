@@ -81,14 +81,43 @@ func getRepoFile(gh *github.Client, repo, file, sha string) (*[]byte, error) {
 	return &raw, err
 }
 
-// getLabelerConfig builds a LabelerConfig from a raw yaml
-func getLabelerConfig(configRaw *[]byte) (*labeler.LabelerConfig, error) {
-	var c labeler.LabelerConfig
+// getLabelerConfig builds a LabelerConfigV1 from a raw yaml
+func getLabelerConfig(configRaw *[]byte) (*labeler.LabelerConfigV1, error) {
+	var c labeler.LabelerConfigV1
 	err := yaml.Unmarshal(*configRaw, &c)
 	if err != nil {
-		log.Printf("Unable to unmarshall config --\n%s\n--, %s", configRaw, err)
+		log.Printf("Unable to unmarshall config %s: ", err)
+	}
+	if c.Version == 0 {
+		c, err = getLabelerConfigV1(configRaw)
+		if err != nil {
+			log.Printf("Unable to unmarshall legacy config %s: ", err)
+		}
 	}
 	return &c, err
+}
+
+func getLabelerConfigV1(configRaw *[]byte) (labeler.LabelerConfigV1, error) {
+
+	// Load v0
+	var oldCfg map[string]labeler.LabelMatcher
+	err := yaml.Unmarshal(*configRaw, &oldCfg)
+	if err != nil {
+		log.Printf("Unable to unmarshall legacy config: %s", err)
+		return labeler.LabelerConfigV1{}, err
+	}
+
+	// Convert
+	var matchers = []labeler.LabelMatcher{}
+	for label, matcher := range oldCfg {
+		matcher.Label = label
+		matchers = append(matchers, matcher)
+	}
+
+	return labeler.LabelerConfigV1{
+		Version: 0,
+		Labels:  matchers,
+	}, err
 }
 
 func getGithubClient() *github.Client {
@@ -114,10 +143,10 @@ func getEventPayload() *[]byte {
 	return &eventPayload
 }
 
-func newLabeler(gh *github.Client, config *labeler.LabelerConfig) *labeler.Labeler {
+func newLabeler(gh *github.Client, config *labeler.LabelerConfigV1) *labeler.Labeler {
 	l := labeler.Labeler{
 
-		FetchRepoConfig: func(owner string, repoName string) (*labeler.LabelerConfig, error) {
+		FetchRepoConfig: func(owner string, repoName string) (*labeler.LabelerConfigV1, error) {
 			return config, nil
 		},
 

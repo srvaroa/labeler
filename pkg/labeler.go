@@ -15,8 +15,8 @@ import (
 	"github.com/waigani/diffparser"
 )
 
-type LabelerConfig map[string]LabelMatcher
 type LabelMatcher struct {
+	Label     string
 	Title     string
 	Branch    string
 	Files     []string
@@ -25,13 +25,20 @@ type LabelMatcher struct {
 	SizeAbove string `yaml:"size-above"`
 }
 
+type LabelerConfigV0 map[string]LabelMatcher
+
+type LabelerConfigV1 struct {
+	Version int32
+	Labels  []LabelMatcher
+}
+
 // LabelUpdates Represents a request to update the set of labels
 type LabelUpdates struct {
 	set map[string]bool
 }
 
 type Labeler struct {
-	FetchRepoConfig    func(owner string, repoName string) (*LabelerConfig, error)
+	FetchRepoConfig    func(owner string, repoName string) (*LabelerConfigV1, error)
 	ReplaceLabelsForPr func(owner string, repoName string, prNumber int, labels []string) error
 	GetCurrentLabels   func(owner string, repoName string, prNumber int) ([]string, error)
 }
@@ -215,7 +222,7 @@ func (l *Labeler) executeOn(pr *gh.PullRequest) error {
 }
 
 // findMatches returns all updates to be made to labels for the given PR
-func (l *Labeler) findMatches(pr *gh.PullRequest, config *LabelerConfig) (LabelUpdates, error) {
+func (l *Labeler) findMatches(pr *gh.PullRequest, config *LabelerConfigV1) (LabelUpdates, error) {
 
 	labelUpdates := LabelUpdates{
 		set: map[string]bool{},
@@ -228,7 +235,23 @@ func (l *Labeler) findMatches(pr *gh.PullRequest, config *LabelerConfig) (LabelU
 		NewFilesCondition(),
 	}
 
-	for label, matcher := range *config {
+	for _, matcher := range config.Labels {
+		label := matcher.Label
+
+		if labelUpdates.set[label] {
+			// This label was already matched in another matcher
+			// so we already decided to apply it and need to
+			// evaluate no more matchers.
+			//
+			// Note that multiple matchers for the same label
+			// are combined with an OR.
+			continue
+		}
+
+		// Reset the label as we're going to re-evaluate it in a new
+		// condition
+		delete(labelUpdates.set, label)
+
 		for _, c := range conditions {
 			isMatched, err := c.Evaluate(pr, matcher)
 			if err != nil {
@@ -237,7 +260,6 @@ func (l *Labeler) findMatches(pr *gh.PullRequest, config *LabelerConfig) (LabelU
 			}
 
 			prev, ok := labelUpdates.set[label]
-
 			if ok { // Other conditions were evaluated for the label
 				labelUpdates.set[label] = prev && isMatched
 			} else { // First condition evaluated for this label
