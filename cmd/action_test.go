@@ -118,10 +118,67 @@ func TestGetLabelerConfigV1(t *testing.T) {
 				Label:     "L",
 				SizeAbove: "100",
 			},
+			l.LabelMatcher{
+				Label: "TestFileMatch",
+				Files: []string{
+					"cmd/.*.go",
+					"pkg/.*.go",
+				},
+			},
 		},
 	}
 
 	if !cmp.Equal(expect, *c) {
 		t.Fatalf("Expect: %+v Got: %+v", expect, c)
 	}
+}
+
+func TestGetLabelerConfig2V1(t *testing.T) {
+
+	file, err := os.Open("../test_data/config2_v1.yml")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	contents, err := ioutil.ReadAll(file)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var c *l.LabelerConfigV1
+	c, err = getLabelerConfig(&contents)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if 1 != c.Version {
+		t.Fatalf("Expect version: %+v Got: %+v", 1, c.Version)
+	}
+
+	expectMatchers := map[string]l.LabelMatcher{
+		"TestLabel": l.LabelMatcher{
+			Label: "TestLabel",
+			Title: ".*",
+		},
+		"TestFileMatch": l.LabelMatcher{
+			Label: "TestFileMatch",
+			Files: []string{"cmd/.*.go", "pkg/.*.go"},
+		},
+	}
+
+	if !cmp.Equal(len(expectMatchers), len(c.Labels)) {
+		t.Fatalf("Expect same number of matchers: %+v Got: %+v",
+			len(expectMatchers),
+			len(c.Labels))
+	}
+
+	for _, actualMatcher := range c.Labels {
+		expectMatcher := expectMatchers[actualMatcher.Label]
+		if !cmp.Equal(expectMatcher, actualMatcher) {
+			t.Fatalf("Expect matcher: %+v Got: %+v",
+				expectMatcher,
+				actualMatcher)
+		}
+	}
+
 }
