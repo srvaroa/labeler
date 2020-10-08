@@ -13,3 +13,7 @@ labels:
     size-below: 100
   - label: L
     size-above: 100
+  - label: "TestFileMatch"
+    files: 
+    - "cmd/.*.go"
+    - "pkg/.*.go"
