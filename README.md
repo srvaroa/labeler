@@ -13,20 +13,22 @@ richer set of options.
 Add a file `.github/workflows/main.yml` to your repository with these
 contents:
 
-	name: Label PRs
+```yaml
+name: Label PRs
 
-	on:
-	  - pull_request
+on:
+- pull_request
 
-	jobs:
-	  build:
+jobs:
+  build:
 
-		runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
 		
-		steps:
-		- uses: srvaroa/labeler@master
-		  env:
-			GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+    steps:
+    - uses: srvaroa/labeler@master
+      env:
+        GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+```
 
 Then add a new file `./github/labeler.yml` with the configuration as
 described below in the `Configuration` section.
@@ -50,17 +52,21 @@ the Action will unset the given label.
 
 Here is an example of a matcher for label "Example":
 
-      <label>: "Example"
-      <condition_name>: <condition_parameters>
-      <condition_name>: <condition_parameters>
+```yaml
+<label>: "Example"
+<condition_name>: <condition_parameters>
+<condition_name>: <condition_parameters>
+```
 
 For example, this `./github/labeler.yml` contains a single matcher with
 a single condition:
 
-    version: 1
-    labels:
-      - label: "WIP"
-	title: "^WIP:.*"
+```yaml
+version: 1
+labels:
+- label: "WIP"
+  title: "^WIP:.*"
+```
 
 A Pull Request with title "WIP: this is work in progress" would be labelled as
 `WIP`.  If the Pull Request title changes to "This is done", then the `WIP`
@@ -72,11 +78,13 @@ conditions with an AND operation.  That is, the label will be applied if
 
 For example, given this `./github/labeler.yml`:
 
-    version: 1
-    labels:
-      - label: "WIP"
-	title: "^WIP:.*"
-        mergeable: false
+```yaml
+version: 1
+labels:
+- label: "WIP"
+  title: "^WIP:.*"
+  mergeable: false
+```
 
 A Pull Request with title "WIP: this is work in progress" *and* not in a
 mergeable state would be labelled as `WIP`.  If the Pull Request title changes
@@ -86,12 +94,14 @@ removed.
 If you wish to apply an OR, you may set multiple matchers for the same
 label. For example:
 
-    version: 1
-    labels:
-      - label: "WIP"
-	title: "^WIP:.*"
-      - label: "WIP"
-        mergeable: false
+```yaml
+version: 1
+labels:
+- label: "WIP"
+  title: "^WIP:.*"
+- label: "WIP"
+  mergeable: false
+```
 
 The `WIP` label will be set if the title matches `^WIP:.*` OR the label
 is not in a mergeable state.
@@ -104,26 +114,34 @@ Below are the conditions currently supported in label matchers.
 
 This condition is satisfied when the PR title matches on the given regex.
 
-    title: "^WIP:.*"
+```yaml
+title: "^WIP:.*"
+```
 
 ### Regex on branch
 
 This condition is satisfied when the PR branch matches on the given regex.
 
-    branch: "^feature/.*"
+```yaml
+branch: "^feature/.*"
+```
 
 ### Regex on PR files
 
 This condition is satisfied when any of the PR files matches on the given regexs.
 
-    files: 
-      - "cmd/.*_tests.go"
+```yaml
+files: 
+- "cmd/.*_tests.go"
+```
 
 ### Mergeable status
 
 This condition is satisfied when the PR is in a [mergeable state](https://developer.github.com/v3/pulls/#response-1).
 
-    mergeable: true
+```yaml
+mergeable: true
+```
 
 ### PR size
 
@@ -135,13 +153,15 @@ deletions` in the PR.
 
 For example, given this `./github/labeler.yml`:
 
-    - label: "S"
-      size-below: 10
-    - label: "M":
-      size-above: 9
-      size-below: 100
-    - label: "L":
-      size-above: 100
+```yaml
+- label: "S"
+  size-below: 10
+- label: "M":
+  size-above: 9
+  size-below: 100
+- label: "L":
+  size-above: 100
+```
 
 These would be the labels assigned to some PRs, based on their size as
 reported by the [GitHub API](https://developer.github.com/v3/pulls).
