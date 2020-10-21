@@ -23,7 +23,7 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-		
+
     steps:
     - uses: srvaroa/labeler@master
       env:
