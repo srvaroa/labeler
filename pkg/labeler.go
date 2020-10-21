@@ -279,13 +279,14 @@ func (l *Labeler) findMatches(pr *gh.PullRequest, config *LabelerConfigV1) (Labe
 // getPrFileNames returns all of the file names (old and new) of files changed in the given PR
 func getPrFileNames(pr *gh.PullRequest) ([]string, error) {
 	ghToken := os.Getenv("GITHUB_TOKEN")
-	diffReq, err := http.NewRequest("GET", pr.GetDiffURL(), nil)
+	diffReq, err := http.NewRequest("GET", pr.GetURL(), nil)
 
 	if err != nil {
 		return nil, err
 	}
 
 	diffReq.Header.Add("Authorization", "Bearer "+ghToken)
+	diffReq.Header.Add("Accept", "application/vnd.github.v3.diff")
 	diffRes, err := http.DefaultClient.Do(diffReq)
 
 	if err != nil {
