@@ -156,10 +156,10 @@ For example, given this `./github/labeler.yml`:
 ```yaml
 - label: "S"
   size-below: 10
-- label: "M":
+- label: "M"
   size-above: 9
   size-below: 100
-- label: "L":
+- label: "L"
   size-above: 100
 ```
 
