@@ -241,6 +241,36 @@ func TestHandleEvent(t *testing.T) {
 			expectedLabels: []string{},
 		},
 		TestCase{
+			payloads: []string{"create_pr"},
+			name:     "Test the base branch rule (matching)",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					LabelMatcher{
+						Label:      "Branch",
+						BaseBranch: "^master",
+					},
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{"Branch"},
+		},
+		TestCase{
+			payloads: []string{"create_pr"},
+			name:     "Test the base branch rule (not matching)",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					LabelMatcher{
+						Label:      "Branch",
+						BaseBranch: "^does/not-match/*",
+					},
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{},
+		},
+		TestCase{
 			payloads: []string{"diff_pr"},
 			name:     "Test the files rule",
 			config: LabelerConfigV1{
