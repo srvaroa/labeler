@@ -32,24 +32,24 @@ func TestGetLabelerConfigV0(t *testing.T) {
 	}
 
 	expectMatchers := map[string]l.LabelMatcher{
-		"WIP": l.LabelMatcher{
+		"WIP": {
 			Label: "WIP",
 			Title: "^WIP:.*",
 		},
-		"WOP": l.LabelMatcher{
+		"WOP": {
 			Label: "WOP",
 			Title: "^WOP:.*",
 		},
-		"S": l.LabelMatcher{
+		"S": {
 			Label:     "S",
 			SizeBelow: "10",
 		},
-		"M": l.LabelMatcher{
+		"M": {
 			Label:     "M",
 			SizeAbove: "9",
 			SizeBelow: "100",
 		},
-		"L": l.LabelMatcher{
+		"L": {
 			Label:     "L",
 			SizeAbove: "100",
 		},
@@ -93,32 +93,32 @@ func TestGetLabelerConfigV1(t *testing.T) {
 	expect := l.LabelerConfigV1{
 		Version: 1,
 		Labels: []l.LabelMatcher{
-			l.LabelMatcher{
+			{
 				Label:  "WIP",
 				Branch: "wip",
 			},
-			l.LabelMatcher{
+			{
 				Label: "WIP",
 				Title: "^WIP:.*",
 			},
-			l.LabelMatcher{
+			{
 				Label: "WOP",
 				Title: "^WOP:.*",
 			},
-			l.LabelMatcher{
+			{
 				Label:     "S",
 				SizeBelow: "10",
 			},
-			l.LabelMatcher{
+			{
 				Label:     "M",
 				SizeAbove: "9",
 				SizeBelow: "100",
 			},
-			l.LabelMatcher{
+			{
 				Label:     "L",
 				SizeAbove: "100",
 			},
-			l.LabelMatcher{
+			{
 				Label: "TestFileMatch",
 				Files: []string{
 					"cmd/.*.go",
@@ -156,11 +156,11 @@ func TestGetLabelerConfig2V1(t *testing.T) {
 	}
 
 	expectMatchers := map[string]l.LabelMatcher{
-		"TestLabel": l.LabelMatcher{
+		"TestLabel": {
 			Label: "TestLabel",
 			Title: ".*",
 		},
-		"TestFileMatch": l.LabelMatcher{
+		"TestFileMatch": {
 			Label: "TestFileMatch",
 			Files: []string{"cmd/.*.go", "pkg/.*.go"},
 		},
