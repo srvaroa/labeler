@@ -45,9 +45,28 @@ func main() {
 
 	log.Printf("Trigger event: %s", os.Getenv("GITHUB_EVENT_NAME"))
 
-	err = newLabeler(gh, config).HandleEvent(eventName, eventPayload)
-	if err != nil {
-		log.Printf("Unable to execute action: %+v", err)
+	l := newLabeler(gh, config)
+
+	if eventName == "schedule" {
+		t := strings.Split(os.Getenv("GITHUB_REPOSITORY"), "/")
+		owner, repoName := t[0], t[1]
+
+		prs, _, err := gh.PullRequests.List(context.Background(), owner, repoName, &github.PullRequestListOptions{})
+		if err != nil {
+			return
+		}
+
+		for _, pr := range prs {
+			err = l.ExecuteOn(pr)
+			if err != nil {
+				return
+			}
+		}
+	} else {
+		err = l.HandleEvent(eventName, eventPayload)
+		if err != nil {
+			log.Printf("Unable to execute action: %+v", err)
+		}
 	}
 
 }
