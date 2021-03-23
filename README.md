@@ -30,7 +30,7 @@ jobs:
         GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 ```
 
-Then add a new file `./github/labeler.yml` with the configuration as
+Then add a new file `.github/labeler.yml` with the configuration as
 described below in the `Configuration` section.
 
 This action will avoid failing in all cases, so if you're experiencing
@@ -44,7 +44,7 @@ Typical errors are:
 
 ## Configuration
 
-Configuration can be stored at `./github/labeler.yml` as a plain list of
+Configuration can be stored at `.github/labeler.yml` as a plain list of
 label matchers, which consist of a label and a set of conditions for
 each.  When *all* conditions for a label match, then the Action will set
 the given label.  When *any* condition for a label does not match, then
@@ -58,7 +58,7 @@ Here is an example of a matcher for label "Example":
 <condition_name>: <condition_parameters>
 ```
 
-For example, this `./github/labeler.yml` contains a single matcher with
+For example, this `.github/labeler.yml` contains a single matcher with
 a single condition:
 
 ```yaml
@@ -76,7 +76,7 @@ Each label may combine multiple conditions.  The action combines all
 conditions with an AND operation.  That is, the label will be applied if
 *all* conditions are satisfied, removed otherwise.
 
-For example, given this `./github/labeler.yml`:
+For example, given this `.github/labeler.yml`:
 
 ```yaml
 version: 1
@@ -151,7 +151,7 @@ the PR is within given thresholds.
 The number of changed lines is calculated as the sum of all `additions +
 deletions` in the PR.
 
-For example, given this `./github/labeler.yml`:
+For example, given this `.github/labeler.yml`:
 
 ```yaml
 - label: "S"
