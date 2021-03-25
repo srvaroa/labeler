@@ -42,6 +42,7 @@ type Labeler struct {
 	FetchRepoConfig    func(owner string, repoName string) (*LabelerConfigV1, error)
 	ReplaceLabelsForPr func(owner string, repoName string, prNumber int, labels []string) error
 	GetCurrentLabels   func(owner string, repoName string, prNumber int) ([]string, error)
+	Client             HttpClient
 }
 
 type Condition struct {
@@ -99,7 +100,7 @@ func NewBaseBranchCondition() Condition {
 	}
 }
 
-func NewFilesCondition() Condition {
+func NewFilesCondition(l *Labeler) Condition {
 	prFiles := []string{}
 
 	return Condition{
@@ -113,7 +114,7 @@ func NewFilesCondition() Condition {
 
 			if len(prFiles) == 0 {
 				var err error
-				prFiles, err = getPrFileNames(pr)
+				prFiles, err = l.getPrFileNames(pr)
 				if err != nil {
 					return false, err
 				}
@@ -251,7 +252,7 @@ func (l *Labeler) findMatches(pr *gh.PullRequest, config *LabelerConfigV1) (Labe
 		NewBaseBranchCondition(),
 		NewIsMergeableCondition(),
 		NewSizeCondition(),
-		NewFilesCondition(),
+		NewFilesCondition(l),
 	}
 
 	for _, matcher := range config.Labels {
@@ -296,7 +297,8 @@ func (l *Labeler) findMatches(pr *gh.PullRequest, config *LabelerConfigV1) (Labe
 }
 
 // getPrFileNames returns all of the file names (old and new) of files changed in the given PR
-func getPrFileNames(pr *gh.PullRequest) ([]string, error) {
+func (l *Labeler) getPrFileNames(pr *gh.PullRequest) ([]string, error) {
+	log.Printf("getPrFileNames for pr - " + pr.GetURL())
 	ghToken := os.Getenv("GITHUB_TOKEN")
 	diffReq, err := http.NewRequest("GET", pr.GetURL(), nil)
 
@@ -304,9 +306,13 @@ func getPrFileNames(pr *gh.PullRequest) ([]string, error) {
 		return nil, err
 	}
 
-	diffReq.Header.Add("Authorization", "Bearer "+ghToken)
+	if ghToken != "" {
+		diffReq.Header.Add("Authorization", "Bearer "+ghToken)
+	} else {
+		log.Printf("Env var GITHUB_TOKEN is missing, using annonymous request")
+	}
 	diffReq.Header.Add("Accept", "application/vnd.github.v3.diff")
-	diffRes, err := http.DefaultClient.Do(diffReq)
+	diffRes, err := l.Client.Do(diffReq)
 
 	if err != nil {
 		return nil, err
@@ -318,12 +324,16 @@ func getPrFileNames(pr *gh.PullRequest) ([]string, error) {
 	prFiles := make([]string, 0)
 	if diffRes.StatusCode == http.StatusOK {
 		diffRaw, err = ioutil.ReadAll(diffRes.Body)
-
 		if err != nil {
 			return nil, err
 		}
 
-		diff, _ := diffparser.Parse(string(diffRaw))
+		diff, err := diffparser.Parse(string(diffRaw))
+		if err != nil {
+			return nil, err
+		}
+
+		log.Printf("got diff %s, parsed %+v", string(diffRaw), diff)
 		prFilesSet := map[string]struct{}{}
 		// Place in a set to remove duplicates
 		for _, file := range diff.Files {
@@ -334,6 +344,9 @@ func getPrFileNames(pr *gh.PullRequest) ([]string, error) {
 		for k := range prFilesSet {
 			prFiles = append(prFiles, k)
 		}
+		log.Printf("diff files %s", prFiles)
+	} else {
+		log.Printf("failed with status %s", diffRes.Status)
 	}
 
 	return prFiles, nil

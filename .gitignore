@@ -1,1 +1,4 @@
 *.swp
+.idea
+coverage.out
+action
