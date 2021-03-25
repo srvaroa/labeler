@@ -58,9 +58,7 @@ func main() {
 
 		for _, pr := range prs {
 			err = l.ExecuteOn(pr)
-			if err != nil {
-				return
-			}
+			log.Printf("Unable to execute action: %+v", err)
 		}
 	} else {
 		err = l.HandleEvent(eventName, eventPayload)
