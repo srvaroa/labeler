@@ -187,6 +187,8 @@ func newLabeler(gh *github.Client, config *labeler.LabelerConfigV1) *labeler.Lab
 			}
 			return labels, err
 		},
+
+		Client: labeler.NewDefaultHttpClient(),
 	}
 	return &l
 }
