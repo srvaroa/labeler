@@ -194,12 +194,12 @@ func (l *Labeler) HandleEvent(
 	}
 	switch event := event.(type) {
 	case *gh.PullRequestEvent:
-		err = l.executeOn(event.PullRequest)
+		err = l.ExecuteOn(event.PullRequest)
 	}
 	return err
 }
 
-func (l *Labeler) executeOn(pr *gh.PullRequest) error {
+func (l *Labeler) ExecuteOn(pr *gh.PullRequest) error {
 	owner := pr.Base.Repo.GetOwner().GetLogin()
 	repoName := *pr.Base.Repo.Name
 
