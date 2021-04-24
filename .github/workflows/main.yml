@@ -1,12 +1,7 @@
 name: Label PRs
 
 on:
-<<<<<<< Updated upstream
-  - pull_request
-=======
-  pull_request_target:
-    types: [assigned, opened, synchronize, reopened, edited, closed, removed]
->>>>>>> Stashed changes
+  pull_request:
 
 jobs:
   build:
