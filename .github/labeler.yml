@@ -1,8 +1,8 @@
-Version: 1
-Labels:
-  - Label: "TestLabel"
+version: 1
+labels:
+  - label: "TestLabel"
     title: ".*"
-  - Label: "TestFileMatch"
+  - label: "TestFileMatch"
     files: 
       - "cmd/.*.go"
       - "pkg/.*.go"
