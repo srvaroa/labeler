@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"strings"
 
-	gh "github.com/google/go-github/v27/github"
+	gh "github.com/google/go-github/v35/github"
 	"github.com/waigani/diffparser"
 )
 
@@ -194,6 +194,8 @@ func (l *Labeler) HandleEvent(
 	}
 	switch event := event.(type) {
 	case *gh.PullRequestEvent:
+		err = l.ExecuteOn(event.PullRequest)
+	case *gh.PullRequestTargetEvent:
 		err = l.ExecuteOn(event.PullRequest)
 	}
 	return err

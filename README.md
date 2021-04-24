@@ -33,6 +33,12 @@ jobs:
 Then add a new file `.github/labeler.yml` with the configuration as
 described below in the `Configuration` section.
 
+If you want to run the action on the base of the pull request, rather
+than on the merge commit, you should trigger the action on
+`pull_request_target`.  Check the [GitHub
+documentation](https://docs.github.com/en/actions/reference/events-that-trigger-workflows#pull_request_target)
+for more details.
+
 This action will avoid failing in all cases, so if you're experiencing
 unexpected behaviour it's worth looking at execution logs just in case.
 Typical errors are:
