@@ -13,5 +13,5 @@ WORKDIR /go/src/app
 COPY . .
 ENV GO111MODULE=on
 ENV GO15VENDOREXPERIMENT=1
-RUN go build -o action ./cmd
+RUN CGO_ENABLED=0 GO111MODULE=on GO15VENDOREXPERIMENT=1 go build -trimpath -o action ./cmd
 ENTRYPOINT ["/go/src/app/action"]
