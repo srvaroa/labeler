@@ -1,13 +1,14 @@
 name: 'PR labeler based on multiple rules'
 description: 'Label Pull Requests based on configurable rules'
-author: 'Galo Navarro <anglorvaroa@gmail.com>'
+author: 'Jaeyeon Kim <anencore94@gmail.com>'
 inputs: 
   config_path:
     description: 'Path for labeling rules'
+    required: false
     default: '.github/labeler.yml'
 runs:
   using: 'docker'
   image: 'Dockerfile'
 branding:
-  icon: award
-  color: blue
+  icon: tag
+  color: green

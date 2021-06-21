@@ -7,10 +7,10 @@ import (
 	"math"
 	"net/http"
 	"os"
-	"regexp"
 	"strconv"
 	"strings"
 
+	regexp2 "github.com/dlclark/regexp2"
 	gh "github.com/google/go-github/v35/github"
 	"github.com/waigani/diffparser"
 )
@@ -60,7 +60,8 @@ func NewTitleCondition() Condition {
 				return false, fmt.Errorf("title is not set in config")
 			}
 			log.Printf("Matching `%s` against: `%s`", matcher.Title, pr.GetTitle())
-			isMatched, _ := regexp.Match(matcher.Title, []byte(pr.GetTitle()))
+			re := regexp2.MustCompile(matcher.Title, 0)
+			isMatched, _ := re.MatchString(pr.GetTitle())
 			return isMatched, nil
 		},
 	}
@@ -77,7 +78,8 @@ func NewBranchCondition() Condition {
 			}
 			prBranchName := pr.Head.GetRef()
 			log.Printf("Matching `%s` against: `%s`", matcher.Branch, prBranchName)
-			isMatched, _ := regexp.Match(matcher.Branch, []byte(prBranchName))
+			re := regexp2.MustCompile(matcher.Branch, 0)
+			isMatched, _ := re.MatchString(prBranchName)
 			return isMatched, nil
 		},
 	}
@@ -94,7 +96,8 @@ func NewBaseBranchCondition() Condition {
 			}
 			prBranchName := pr.Base.GetRef()
 			log.Printf("Matching `%s` against: `%s`", matcher.Branch, prBranchName)
-			isMatched, _ := regexp.Match(matcher.BaseBranch, []byte(prBranchName))
+			re := regexp2.MustCompile(matcher.BaseBranch, 0)
+			isMatched, _ := re.MatchString(prBranchName)
 			return isMatched, nil
 		},
 	}
@@ -123,7 +126,8 @@ func NewFilesCondition(l *Labeler) Condition {
 			log.Printf("Matching `%s` against: %s", strings.Join(matcher.Files, ", "), strings.Join(prFiles, ", "))
 			for _, fileMatcher := range matcher.Files {
 				for _, prFile := range prFiles {
-					isMatched, _ := regexp.Match(fileMatcher, []byte(prFile))
+					re := regexp2.MustCompile(fileMatcher, 0)
+					isMatched, _ := re.MatchString(prFile)
 					if isMatched {
 						log.Printf("Matched `%s` against: `%s`", prFile, fileMatcher)
 						return isMatched, nil

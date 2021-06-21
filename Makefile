@@ -1,6 +1,7 @@
 SHELL := /bin/bash
 GO := GO111MODULE=on GO15VENDOREXPERIMENT=1 go
-GO_NOMOD := GO111MODULE=off go
+#GO := go
+#GO_NOMOD := GO111MODULE=off go
 
 # set dev version unless VERSION is explicitly set via environment
 VERSION ?= $(shell echo "$$(git describe --abbrev=0 --tags 2>/dev/null)-dev+$(REV)" | sed 's/^v//')
