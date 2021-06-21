@@ -1,4 +1,4 @@
-name: 'PR labeler'
+name: 'PR labeler Action'
 description: 'Label Pull Requests based on configurable rules'
 author: 'Jaeyeon Kim <anencore94@gmail.com>'
 inputs: 
