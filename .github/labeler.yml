@@ -1,9 +1,16 @@
 version: 1
 labels:
-  - label: "TestLabel"
-    title: ".*"
-  - label: "TestFileMatch"
-    files: 
-      - "cmd/.*.go"
-      - "pkg/.*.go"
-  
+  - label: "WIP"
+    title: "^WIP:.*"
+  - label: "feature"
+    branch: "^feature/.*"
+  - label: "bugfix"
+    branch: "^bugfix/.*"
+  - label: "enh"
+    branch: "^enhance/.*"
+  - label: "style"
+    branch: "^style/*"
+  - label: "docs"
+    branch: "^docs/*"
+  - label: "need-to-change-branch-name"
+    branch: "^(?!^feature/.*$)(?!^bugfix/.*$)(?!^enhance/.*$)(?!^style/.*$)(?!^docs/.*$).*$"

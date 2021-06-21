@@ -1,4 +1,4 @@
-FROM golang:1.12-alpine
+FROM golang:1.16-alpine
 
 LABEL "com.github.actions.name"="Condition-based Pull Request labeller"
 LABEL "com.github.actions.description"="Automatically label pull requests based on rules"
@@ -11,6 +11,8 @@ RUN apk add --no-cache git
 
 WORKDIR /go/src/app
 COPY . .
-ENV GO111MODULE=on
-RUN go build -o action ./cmd
+#ENV GO111MODULE=on
+#ENV GO15VENDOREXPERIMENT=1
+#RUN go build -o action ./cmd
+RUN make build
 ENTRYPOINT ["/go/src/app/action"]

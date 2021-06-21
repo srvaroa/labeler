@@ -221,7 +221,7 @@ func TestHandleEvent(t *testing.T) {
 				Labels: []LabelMatcher{
 					{
 						Label:  "Branch",
-						Branch: "^srvaroa-patch.*",
+						Branch: "^(?!^feature/.*$)(?!^bugfix/.*$)(?!^enhance/.*$)(?!^style/.*$)(?!^docs/.*$).*$",
 					},
 				},
 			},
