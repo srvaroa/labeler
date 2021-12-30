@@ -1,0 +1,20 @@
+{
+  "name": "labeler",
+  "version": "0.0.0",
+  "description": "GitHub Action to assign labels to PRs based on configurable conditions",
+  "main": "main.js",
+  "dependencies": {},
+  "devDependencies": {
+    "@actions/core": "^1.6.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/srvaroa/labeler.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/srvaroa/labeler/issues"
+  },
+  "homepage": "https://github.com/srvaroa/labeler#readme"
+}

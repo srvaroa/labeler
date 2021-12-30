@@ -2,3 +2,4 @@
 .idea
 coverage.out
 action
+node_modules

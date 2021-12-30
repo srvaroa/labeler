@@ -5,9 +5,12 @@ inputs:
   config_path:
     description: 'Path for labeling rules'
     default: '.github/labeler.yml'
+  action_asset_url:
+    description: 'Action binary to download'
+    default: 'https://github.com/ejhayes/labeler/releases/latest/download/action.tar.gz'
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
+  using: 'node12'
+  main: main.js
 branding:
   icon: award
   color: blue
