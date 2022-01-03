@@ -19,7 +19,7 @@ func main() {
 	eventPayload := getEventPayload()
 	eventName := os.Getenv("GITHUB_EVENT_NAME")
 
-	// TODO: rethink this.  Currently we'll take the config from the
+	// TODO: rethink this.  Currently we'll take the config from the.
 	// PR's branch, not from master.  My intuition is that one wants
 	// to see the rules that are set in the main branch (as those are
 	// vetted by the repo's owners).  It seems fairly common in GH
