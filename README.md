@@ -132,7 +132,7 @@ This condition is satisfied when the PR branch matches on the given regex.
 branch: "^feature/.*"
 ```
 
-### Regex on branch
+### Regex on PR body 
 
 This condition is satisfied when the body (description) matches on the given regex.
 
