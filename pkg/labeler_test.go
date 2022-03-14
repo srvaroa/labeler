@@ -274,6 +274,36 @@ func TestHandleEvent(t *testing.T) {
 			expectedLabels: []string{},
 		},
 		{
+			payloads: []string{"create_pr"},
+			name:     "Test the body rule (matching)",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label: "Body",
+						Body:  "^Signed-off.*",
+					},
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{"Body"},
+		},
+		{
+			payloads: []string{"create_pr"},
+			name:     "Test the body rule (not matching)",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label: "Body",
+						Body:  "/patch/",
+					},
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{},
+		},
+		{
 			payloads: []string{"diff_pr"},
 			name:     "Test the files rule",
 			config: LabelerConfigV1{

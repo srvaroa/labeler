@@ -20,6 +20,7 @@ type LabelMatcher struct {
 	Title      string
 	Branch     string
 	BaseBranch string `yaml:"base-branch"`
+	Body       string
 	Files      []string
 	Mergeable  string
 	SizeBelow  string `yaml:"size-below"`
@@ -95,6 +96,22 @@ func NewBaseBranchCondition() Condition {
 			prBranchName := pr.Base.GetRef()
 			log.Printf("Matching `%s` against: `%s`", matcher.Branch, prBranchName)
 			isMatched, _ := regexp.Match(matcher.BaseBranch, []byte(prBranchName))
+			return isMatched, nil
+		},
+	}
+}
+
+func NewBodyCondition() Condition {
+	return Condition{
+		GetName: func() string {
+			return "Body matches regex"
+		},
+		Evaluate: func(pr *gh.PullRequest, matcher LabelMatcher) (bool, error) {
+			if len(matcher.Body) <= 0 {
+				return false, fmt.Errorf("body is not set in config")
+			}
+			log.Printf("Matching `%s` against: `%s`", matcher.Body, pr.GetBody())
+			isMatched, _ := regexp.Match(matcher.Body, []byte(pr.GetBody()))
 			return isMatched, nil
 		},
 	}
@@ -254,6 +271,7 @@ func (l *Labeler) findMatches(pr *gh.PullRequest, config *LabelerConfigV1) (Labe
 		NewBaseBranchCondition(),
 		NewIsMergeableCondition(),
 		NewSizeCondition(),
+		NewBodyCondition(),
 		NewFilesCondition(l),
 	}
 

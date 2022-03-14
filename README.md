@@ -132,6 +132,14 @@ This condition is satisfied when the PR branch matches on the given regex.
 branch: "^feature/.*"
 ```
 
+### Regex on PR body 
+
+This condition is satisfied when the body (description) matches on the given regex.
+
+``` yaml
+body: "^patch.*"
+```
+
 ### Regex on PR files
 
 This condition is satisfied when any of the PR files matches on the given regexs.
