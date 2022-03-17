@@ -132,6 +132,14 @@ This condition is satisfied when the PR branch matches on the given regex.
 branch: "^feature/.*"
 ```
 
+### Regex on base branch
+
+This condition is satisfied when the PR base branch matches on the given regex.
+
+```yaml
+base-branch: "master"
+```
+
 ### Regex on PR body 
 
 This condition is satisfied when the body (description) matches on the given regex.
