@@ -339,6 +339,25 @@ func TestHandleEvent(t *testing.T) {
 			initialLabels:  []string{},
 			expectedLabels: []string{"Branch"},
 		},
+		{
+			payloads: []string{"small_pr"},
+			name:     "Multiple conditions for the same tag function as OR",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label:   "Author",
+						Authors: []string{"srvaroa"},
+					},
+					{
+						Label:  "Branch",
+						Branch: "WONT MATCH",
+					},
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{"Author"},
+		},
 	}
 
 	for _, tc := range testCases {

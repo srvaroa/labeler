@@ -22,6 +22,7 @@ type LabelMatcher struct {
 	BaseBranch string `yaml:"base-branch"`
 	Body       string
 	Files      []string
+	Authors    []string
 	Mergeable  string
 	SizeBelow  string `yaml:"size-below"`
 	SizeAbove  string `yaml:"size-above"`
@@ -152,6 +153,29 @@ func NewFilesCondition(l *Labeler) Condition {
 	}
 }
 
+func NewAuthorCondition() Condition {
+	return Condition{
+		GetName: func() string {
+			return "Author matches"
+		},
+		Evaluate: func(pr *gh.PullRequest, matcher LabelMatcher) (bool, error) {
+			if len(matcher.Authors) <= 0 {
+				return false, fmt.Errorf("Users are not set in config")
+			}
+
+			prAuthor := pr.GetUser().Login
+
+			log.Printf("Matching `%s` against: `%v`", matcher.Authors, *prAuthor)
+			for _, author := range matcher.Authors {
+				if strings.ToLower(author) == strings.ToLower(*prAuthor) {
+					return true, nil
+				}
+			}
+			return false, nil
+		},
+	}
+}
+
 func NewIsMergeableCondition() Condition {
 	return Condition{
 		GetName: func() string {
@@ -273,6 +297,7 @@ func (l *Labeler) findMatches(pr *gh.PullRequest, config *LabelerConfigV1) (Labe
 		NewSizeCondition(),
 		NewBodyCondition(),
 		NewFilesCondition(l),
+		NewAuthorCondition(),
 	}
 
 	for _, matcher := range config.Labels {
