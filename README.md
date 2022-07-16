@@ -165,6 +165,14 @@ This condition is satisfied when the PR is in a [mergeable state](https://develo
 mergeable: true
 ```
 
+### Match to PR Author
+
+This condition is satisfied when the PR author matches any of the given usernames.
+
+```yaml
+author: "serubin"
+```
+
 ### PR size
 
 This condition is satisfied when the total number of changed lines in
