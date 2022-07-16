@@ -17,3 +17,7 @@ labels:
     files: 
     - "cmd/.*.go"
     - "pkg/.*.go"
+  - label: "Test"
+    authors: 
+      - "Test1"
+      - "Test2"

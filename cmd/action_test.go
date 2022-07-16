@@ -125,6 +125,13 @@ func TestGetLabelerConfigV1(t *testing.T) {
 					"pkg/.*.go",
 				},
 			},
+			{
+				Label: "Test",
+				Authors: []string{
+					"Test1",
+					"Test2",
+				},
+			},
 		},
 	}
 
