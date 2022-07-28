@@ -358,6 +358,24 @@ func TestHandleEvent(t *testing.T) {
 			initialLabels:  []string{},
 			expectedLabels: []string{"Author"},
 		},
+		{
+			payloads: []string{"create_pr", "reopen_pr"},
+			name:     "AppendLabelsOnly enabled forbids deletions",
+			config: LabelerConfigV1{
+				Version:          1,
+				AppendLabelsOnly: true,
+				Labels: []LabelMatcher{
+					{
+						Label: "Fix",
+						Title: "THIS DOES NOT MATCH",
+					},
+				},
+			},
+			initialLabels: []string{"Fix"},
+			// We have a rule for label Fix, it does not match
+			// BUT because AppendLabelsOnly is set, we do not erase it
+			expectedLabels: []string{"Fix"},
+		},
 	}
 
 	for _, tc := range testCases {

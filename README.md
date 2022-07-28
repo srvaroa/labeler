@@ -112,6 +112,44 @@ labels:
 The `WIP` label will be set if the title matches `^WIP:.*` OR the label
 is not in a mergeable state.
 
+## Append-only mode
+
+The default behaviour of this action includes *removing* labels that
+have a rule configured that does not match anymore. For example, given
+this configuration:
+
+```yaml
+version: 1
+labels:
+- label: "WIP"
+  title: "^WIP:.*"
+```
+
+A PR with title 'WIP: my feature' will get the `WIP` label.
+
+Now the title changes to `My feature`. Since the labeler configuration
+includes the `WIP` label, and its rule does not match anymore, the label
+will get removed.
+
+In some cases you would prefer that the action adds labels, but never
+removes them regardless of the matching status. To achieve this you can
+enable the `appendLabelsOnly` flag.
+
+```yaml
+version: 1
+appendLabelsOnly: true,
+labels:
+- label: "WIP"
+  title: "^WIP:.*"
+```
+
+With this config, the behaviour changes:
+
+- A PR with title 'WIP: my feature' will get the `WIP` label.
+- When the title changes to `My feature`, even though the labeler has a
+  rule for the `WIP` label that does not match, the label will be
+  respected.
+
 ## Conditions
 
 Below are the conditions currently supported in label matchers.
