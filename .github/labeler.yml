@@ -2,8 +2,11 @@ version: 1
 labels:
   - label: "TestLabel"
     title: ".*"
+	- label: "NegativeLookahead"
+		files:
+			-	"^(?!.*test.lock)"
   - label: "TestFileMatch"
-    files: 
+    files:
       - "cmd/.*.go"
       - "pkg/.*.go"
-  
+
