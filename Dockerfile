@@ -12,5 +12,6 @@ RUN apk add --no-cache git
 WORKDIR /go/src/app
 COPY . .
 ENV GO111MODULE=on
+ENV GOPROXY=https://proxy.golang.org
 RUN go build -o action ./cmd
 ENTRYPOINT ["/go/src/app/action"]
