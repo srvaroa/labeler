@@ -35,8 +35,8 @@ type LabelerConfigV1 struct {
 	// when set to true, we will only add labels when they match a rule
 	// but it will NOT remove labels that were previously set and stop
 	// matching a rule
-	AppendLabelsOnly bool
-	Labels           []LabelMatcher
+	AppendOnly bool
+	Labels     []LabelMatcher
 }
 
 // LabelUpdates Represents a request to update the set of labels
@@ -273,7 +273,7 @@ func (l *Labeler) ExecuteOn(pr *gh.PullRequest) error {
 	// update, adding new ones and unflagging those to remove if
 	// necessary
 	for label, isDesired := range labelUpdates.set {
-		if config.AppendLabelsOnly {
+		if config.AppendOnly {
 			// If we DO NOT allow deletions, then we will respect
 			// labels that were already set in the current set
 			// but add new ones that matched the repo

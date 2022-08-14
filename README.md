@@ -133,11 +133,11 @@ will get removed.
 
 In some cases you would prefer that the action adds labels, but never
 removes them regardless of the matching status. To achieve this you can
-enable the `appendLabelsOnly` flag.
+enable the `appendOnly` flag.
 
 ```yaml
 version: 1
-appendLabelsOnly: true,
+appendOnly: true,
 labels:
 - label: "WIP"
   title: "^WIP:.*"

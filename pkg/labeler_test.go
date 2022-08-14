@@ -360,10 +360,10 @@ func TestHandleEvent(t *testing.T) {
 		},
 		{
 			payloads: []string{"create_pr", "reopen_pr"},
-			name:     "AppendLabelsOnly enabled forbids deletions",
+			name:     "AppendOnly enabled forbids deletions",
 			config: LabelerConfigV1{
 				Version:          1,
-				AppendLabelsOnly: true,
+				AppendOnly: true,
 				Labels: []LabelMatcher{
 					{
 						Label: "Fix",
@@ -373,7 +373,7 @@ func TestHandleEvent(t *testing.T) {
 			},
 			initialLabels: []string{"Fix"},
 			// We have a rule for label Fix, it does not match
-			// BUT because AppendLabelsOnly is set, we do not erase it
+			// BUT because AppendOnly is set, we do not erase it
 			expectedLabels: []string{"Fix"},
 		},
 	}
