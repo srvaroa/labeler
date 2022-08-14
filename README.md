@@ -137,7 +137,7 @@ enable the `appendOnly` flag.
 
 ```yaml
 version: 1
-appendOnly: true,
+appendOnly: true
 labels:
 - label: "WIP"
   title: "^WIP:.*"
