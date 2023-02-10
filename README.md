@@ -1,5 +1,7 @@
 # Condition based Pull Request Labeler
 
+[![labeler release (latest SemVer)](https://img.shields.io/github/v/release/srvaroa/labeler?sort=semver)](https://github.com/srvaroa/labeler/releases)  
+
 Implements a [GitHub
 Action](https://help.github.com/en/categories/automating-your-workflow-with-github-actions)
 that labels Pull Requests based on configurable conditions.
