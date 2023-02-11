@@ -11,11 +11,10 @@ func NewBaseBranchCondition() Condition {
 		GetName: func() string {
 			return "Base branch matches regex"
 		},
+		CanEvaluate: func(target *Target) bool {
+			return target.ghPR != nil
+		},
 		Evaluate: func(target *Target, matcher LabelMatcher) (bool, error) {
-			if target.ghPR == nil {
-				log.Printf("Base branch only applies on PRs, skip condition")
-				return false, nil
-			}
 			if len(matcher.BaseBranch) <= 0 {
 				return false, fmt.Errorf("branch is not set in config")
 			}

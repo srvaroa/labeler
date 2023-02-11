@@ -3,8 +3,6 @@ package labeler
 import (
 	"fmt"
 	"strconv"
-
-	gh "github.com/google/go-github/v35/github"
 )
 
 func NewIsDraftCondition() Condition {
@@ -12,15 +10,18 @@ func NewIsDraftCondition() Condition {
 		GetName: func() string {
 			return "Pull Request is draft"
 		},
-		Evaluate: func(pr *gh.PullRequest, matcher LabelMatcher) (bool, error) {
+		CanEvaluate: func(target *Target) bool {
+			return target.ghPR != nil
+		},
+		Evaluate: func(target *Target, matcher LabelMatcher) (bool, error) {
 			b, err := strconv.ParseBool(matcher.Draft)
 			if err != nil {
 				return false, fmt.Errorf("draft is not set in config")
 			}
 			if b {
-				return pr.GetDraft(), nil
+				return target.ghPR.GetDraft(), nil
 			}
-			return !pr.GetDraft(), nil
+			return !target.ghPR.GetDraft(), nil
 		},
 	}
 }

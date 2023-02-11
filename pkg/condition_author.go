@@ -11,6 +11,9 @@ func NewAuthorCondition() Condition {
 		GetName: func() string {
 			return "Author matches"
 		},
+		CanEvaluate: func(target *Target) bool {
+			return true
+		},
 		Evaluate: func(target *Target, matcher LabelMatcher) (bool, error) {
 			if len(matcher.Authors) <= 0 {
 				return false, fmt.Errorf("Users are not set in config")

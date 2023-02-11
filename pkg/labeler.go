@@ -2,6 +2,7 @@ package labeler
 
 import (
 	"log"
+	"strings"
 
 	gh "github.com/google/go-github/v35/github"
 )
@@ -44,8 +45,9 @@ type Labeler struct {
 }
 
 type Condition struct {
-	Evaluate func(target *Target, matcher LabelMatcher) (bool, error)
-	GetName  func() string
+	CanEvaluate func(target *Target) bool
+	Evaluate    func(target *Target, matcher LabelMatcher) (bool, error)
+	GetName     func() string
 }
 
 type Target struct {
@@ -76,6 +78,10 @@ func (l *Labeler) HandleEvent(
 		err = l.ExecuteOn(WrapPrAsTarget(event.PullRequest))
 	case *gh.PullRequestTargetEvent:
 		err = l.ExecuteOn(WrapPrAsTarget(event.PullRequest))
+	case *gh.IssuesEvent:
+		err = l.ExecuteOn(WrapIssueAsTarget(event.Issue))
+	default:
+		log.Printf("Event type is not supported, please review your workflow config")
 	}
 	return err
 }
@@ -93,7 +99,29 @@ func WrapPrAsTarget(pr *gh.PullRequest) *Target {
 	}
 }
 
+func WrapIssueAsTarget(issue *gh.Issue) *Target {
+
+	// TODO: go-github@v50 has a Repository property that
+	// avoids this.
+	repoUrlSplit := strings.Split(*issue.RepositoryURL, "/")
+	repoName := repoUrlSplit[len(repoUrlSplit)-1]
+	owner := repoUrlSplit[len(repoUrlSplit)-2]
+
+	return &Target{
+		Author:   *issue.GetUser().Login,
+		Body:     issue.GetBody(),
+		IssueNo:  *issue.Number,
+		Title:    issue.GetTitle(),
+		Owner:    owner,
+		RepoName: repoName,
+		ghPR:     nil,
+		ghIssue:  issue,
+	}
+}
+
 func (l *Labeler) ExecuteOn(target *Target) error {
+
+	log.Printf("Matching labels on target %+v", target)
 
 	config, err := l.FetchRepoConfig()
 
@@ -178,11 +206,16 @@ func (l *Labeler) findMatches(target *Target, config *LabelerConfigV1) (LabelUpd
 		delete(labelUpdates.set, label)
 
 		for _, c := range conditions {
-			isMatched, err := c.Evaluate(target, matcher)
-			if err != nil {
-				log.Printf("%s: condition %s skipped (%s)", label, c.GetName(), err)
+			if !c.CanEvaluate(target) {
+				log.Printf("[%s] skip, event not supported by condition", c.GetName())
 				continue
 			}
+			isMatched, err := c.Evaluate(target, matcher)
+			if err != nil {
+				log.Printf("[%s] skip, %s", c.GetName(), err)
+				continue
+			}
+			log.Printf("[%s] yields %t", c.GetName(), isMatched)
 
 			prev, ok := labelUpdates.set[label]
 			if ok { // Other conditions were evaluated for the label
@@ -191,7 +224,6 @@ func (l *Labeler) findMatches(target *Target, config *LabelerConfigV1) (LabelUpd
 				labelUpdates.set[label] = isMatched
 			}
 
-			log.Printf("%s: condition %s yields %t", label, c.GetName(), isMatched)
 			if isMatched {
 				continue
 			}
