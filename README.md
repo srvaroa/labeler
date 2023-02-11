@@ -1,4 +1,4 @@
-# Condition based Pull Request Labeler
+# Configurable Pull Request labels based on conditions
 
 [![labeler release (latest SemVer)](https://img.shields.io/github/v/release/srvaroa/labeler?sort=semver)](https://github.com/srvaroa/labeler/releases)  
 
