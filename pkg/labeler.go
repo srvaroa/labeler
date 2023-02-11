@@ -1,6 +1,7 @@
 package labeler
 
 import (
+	"context"
 	"log"
 	"strings"
 
@@ -25,7 +26,10 @@ type LabelerConfigV0 map[string]LabelMatcher
 
 type LabelerConfigV1 struct {
 	Version int32
-	// when set to true, we will only add labels when they match a rule
+	// When set to true, scheduled executions will process both PRs and
+	// issues. Else, we will only process PRs. Defaults to "False"
+	Issues bool
+	// When set to true, we will only add labels when they match a rule
 	// but it will NOT remove labels that were previously set and stop
 	// matching a rule
 	AppendOnly bool
@@ -41,6 +45,7 @@ type Labeler struct {
 	FetchRepoConfig  func() (*LabelerConfigV1, error)
 	ReplaceLabels    func(target *Target, labels []string) error
 	GetCurrentLabels func(target *Target) ([]string, error)
+	GitHub           *gh.Client
 	Client           HttpClient
 }
 
@@ -75,18 +80,18 @@ func (l *Labeler) HandleEvent(
 	}
 	switch event := event.(type) {
 	case *gh.PullRequestEvent:
-		err = l.ExecuteOn(WrapPrAsTarget(event.PullRequest))
+		err = l.ExecuteOn(wrapPrAsTarget(event.PullRequest))
 	case *gh.PullRequestTargetEvent:
-		err = l.ExecuteOn(WrapPrAsTarget(event.PullRequest))
+		err = l.ExecuteOn(wrapPrAsTarget(event.PullRequest))
 	case *gh.IssuesEvent:
-		err = l.ExecuteOn(WrapIssueAsTarget(event.Issue))
+		err = l.ExecuteOn(wrapIssueAsTarget(event.Issue))
 	default:
 		log.Printf("Event type is not supported, please review your workflow config")
 	}
 	return err
 }
 
-func WrapPrAsTarget(pr *gh.PullRequest) *Target {
+func wrapPrAsTarget(pr *gh.PullRequest) *Target {
 	return &Target{
 		Author:   *pr.GetUser().Login,
 		Body:     pr.GetBody(),
@@ -99,7 +104,7 @@ func WrapPrAsTarget(pr *gh.PullRequest) *Target {
 	}
 }
 
-func WrapIssueAsTarget(issue *gh.Issue) *Target {
+func wrapIssueAsTarget(issue *gh.Issue) *Target {
 
 	// TODO: go-github@v50 has a Repository property that
 	// avoids this.
@@ -165,7 +170,7 @@ func (l *Labeler) ExecuteOn(target *Target) error {
 			desiredLabels = append(desiredLabels, k)
 		}
 	}
-	log.Printf("Desired labels: %s", desiredLabels)
+	log.Printf("Final set of labels: `%q`", desiredLabels)
 
 	return l.ReplaceLabels(target, desiredLabels)
 }
@@ -231,4 +236,52 @@ func (l *Labeler) findMatches(target *Target, config *LabelerConfigV1) (LabelUpd
 	}
 
 	return labelUpdates, nil
+}
+
+func (l *Labeler) ProcessAllIssues(owner, repo string) {
+
+	config, err := l.FetchRepoConfig()
+	if err != nil {
+		log.Printf("Unable to load configuration %+v", err)
+		return
+	}
+
+	if !config.Issues {
+		log.Println("Issues must be explicitly enabled in order to " +
+			"process issues in the scheduled execution mode")
+	}
+
+	issues, _, err := l.GitHub.Issues.ListByRepo(
+		context.Background(),
+		owner, repo,
+		&gh.IssueListByRepoOptions{})
+
+	if err != nil {
+		log.Printf("Unable to list issues in %s/%s: %+v", owner, repo, err)
+		return
+	}
+
+	for _, pr := range issues {
+		err = l.ExecuteOn(wrapIssueAsTarget(pr))
+		log.Printf("Unable to execute action: %+v", err)
+	}
+}
+
+func (l *Labeler) ProcessAllPRs(owner, repo string) {
+
+	prs, _, err := l.GitHub.PullRequests.List(
+		context.Background(),
+		owner, repo,
+		&gh.PullRequestListOptions{})
+
+	if err != nil {
+		log.Printf("Unable to list pull requests in %s/%s: %+v", owner, repo, err)
+		return
+	}
+
+	for _, pr := range prs {
+		err = l.ExecuteOn(wrapPrAsTarget(pr))
+		log.Printf("Unable to execute action: %+v", err)
+	}
+
 }

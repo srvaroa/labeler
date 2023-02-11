@@ -1,4 +1,4 @@
-# Configurable Pull Request labels based on conditions
+# Configurable labels based on conditions for pull requests and Issues
 
 [![labeler release (latest SemVer)](https://img.shields.io/github/v/release/srvaroa/labeler?sort=semver)](https://github.com/srvaroa/labeler/releases)  
 
@@ -60,8 +60,9 @@ You may combine multiple event triggers.
 A final option is to trigger the action periodically using the
 [`schedule`](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule)
 trigger. For backwards compatibility reasons this will examine all
-active pull requests and update their labels. Issues are not yet
-supported in scheduled mode.
+active pull requests and update their labels. If you wish to examine
+issues as well, you'll need to explicitly add the `issues` flag in your
+config file:
 
 ```yaml
 version: 1
@@ -273,13 +274,13 @@ mergeable: false
 
 Will match if the label is not mergeable. 
 
-### Author (PRs and Issues)
+### Authors (PRs and Issues)
 
 This condition is satisfied when the author of the PR or Issue matches
 any of the given usernames.
 
 ```yaml
-author: "serubin"
+authors: ["serubin"]
 ```
 
 ### Size (PRs only)

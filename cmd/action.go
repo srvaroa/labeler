@@ -49,24 +49,15 @@ func main() {
 
 	if eventName == "schedule" {
 		t := strings.Split(os.Getenv("GITHUB_REPOSITORY"), "/")
-		owner, repoName := t[0], t[1]
-
-		prs, _, err := gh.PullRequests.List(context.Background(), owner, repoName, &github.PullRequestListOptions{})
-		if err != nil {
-			return
-		}
-
-		for _, pr := range prs {
-			err = l.ExecuteOn(labeler.WrapPrAsTarget(pr))
-			log.Printf("Unable to execute action: %+v", err)
-		}
+		owner, repo := t[0], t[1]
+		l.ProcessAllPRs(owner, repo)
+		l.ProcessAllIssues(owner, repo)
 	} else {
 		err = l.HandleEvent(eventName, eventPayload)
 		if err != nil {
 			log.Printf("Unable to execute action: %+v", err)
 		}
 	}
-
 }
 
 func getRepoFile(gh *github.Client, repo, file, sha string) (*[]byte, error) {
@@ -185,7 +176,7 @@ func newLabeler(gh *github.Client, config *labeler.LabelerConfigV1) *labeler.Lab
 			}
 			return labels, err
 		},
-
+		GitHub: gh,
 		Client: labeler.NewDefaultHttpClient(),
 	}
 	return &l
