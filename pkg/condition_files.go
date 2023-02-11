@@ -20,12 +20,10 @@ func NewFilesCondition(l *Labeler) Condition {
 		GetName: func() string {
 			return "File matches regex"
 		},
+		CanEvaluate: func(target *Target) bool {
+			return target.ghPR != nil
+		},
 		Evaluate: func(target *Target, matcher LabelMatcher) (bool, error) {
-
-			if target.ghPR == nil {
-				log.Printf("NewFiles only applies on PRs, skip condition")
-				return false, nil
-			}
 
 			if len(matcher.Files) <= 0 {
 				return false, fmt.Errorf("Files are not set in config")

@@ -2,24 +2,36 @@
 
 [![labeler release (latest SemVer)](https://img.shields.io/github/v/release/srvaroa/labeler?sort=semver)](https://github.com/srvaroa/labeler/releases)  
 
-Implements a [GitHub
+Implements an all-in-one [GitHub
 Action](https://help.github.com/en/categories/automating-your-workflow-with-github-actions)
-that labels Pull Requests based on configurable conditions.
+that can manage multiple labels for both pull requests and Issues using
+configurable matching rules.
 
-It is inspired by the example [Pull Request
-Labeller](https://github.com/actions/labeler), but intends to provide a
-richer set of options.
+## Updates
+
+The action will strive to maintain backwards compatibility with older
+configuration versions. It is nevertheless encouraged to update your
+configuration files to benefit from newer features. Please follow our
+[releases](https://github.com/srvaroa/labeler/releases) page to stay up
+to date.
 
 ## Installing
 
-Add a file `.github/workflows/main.yml` to your repository with these
-contents:
+The action is configured by adding a file `.github/labeler.yml`. The
+file contains matching rules expanded in the `Configuration` section
+below.
+
+### How to trigger action
+
+To trigger the action on events, add a file `.github/workflows/main.yml`
+to your repository with these contents:
 
 ```yaml
 name: Label PRs
 
 on:
 - pull_request
+- issues
 
 jobs:
   build:
@@ -32,25 +44,45 @@ jobs:
         GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 ```
 
-Then add a new file `.github/labeler.yml` with the configuration as
-described below in the `Configuration` section.
+Use the [`on`
+clause](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows)
+to control when to run it.
 
-If you want to run the action on the base of the pull request, rather
-than on the merge commit, you should trigger the action on
-`pull_request_target`.  Check the [GitHub
-documentation](https://docs.github.com/en/actions/reference/events-that-trigger-workflows#pull_request_target)
-for more details.
+* To trigger on PR events, [use
+  `pull_request`](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request).
+  to trigger on PR events and run on the merge commit of the PR. Use
+  [`pull_request_target`](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#pull_request_target)
+  instead if you prefer to run on the base.
+* To trigger on issue events, add [`issues`](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#issues).
+
+You may combine multiple event triggers.
+
+A final option is to trigger the action periodically using the
+[`schedule`](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule)
+trigger. For backwards compatibility reasons this will examine all
+active pull requests and update their labels. Issues are not yet
+supported in scheduled mode.
+
+```yaml
+version: 1
+issues: True
+labels:
+- label: "WIP"
+  title: "^WIP:.*"
+```
+
+## Troubleshooting
 
 This action will avoid failing in all cases, so if you're experiencing
-unexpected behaviour it's worth looking at execution logs just in case.
-Typical errors are:
+unexpected behaviour it's worth looking at execution logs.  Typical
+errors are:
 
-* The configuration file is non existent, or has invalid yaml.
+* The configuration file is non existent, or invalid yaml.
 * Running the action from a fork, as the `GITHUB_TOKEN` has not enough
   permissions to label the main repository ([issue for
   solving this](https://github.com/srvaroa/labeler/issues/3))
 
-## Configuration
+## Configuring matching rules
 
 Configuration can be stored at `.github/labeler.yml` as a plain list of
 label matchers, which consist of a label and a set of conditions for
@@ -58,10 +90,10 @@ each.  When *all* conditions for a label match, then the Action will set
 the given label.  When *any* condition for a label does not match, then
 the Action will unset the given label.
 
-Here is an example of a matcher for label "Example":
+All matchers follow this configuration pattern:
 
 ```yaml
-<label>: "Example"
+<label>: "MyLabel"
 <condition_name>: <condition_parameters>
 <condition_name>: <condition_parameters>
 ```
@@ -76,9 +108,9 @@ labels:
   title: "^WIP:.*"
 ```
 
-A Pull Request with title "WIP: this is work in progress" would be labelled as
-`WIP`.  If the Pull Request title changes to "This is done", then the `WIP`
-label would be removed.
+A PR or issue with title "WIP: this is work in progress" would be
+labelled as `WIP`.  If the title changes to "This is done", then the
+`WIP` label would be removed.
 
 Each label may combine multiple conditions.  The action combines all
 conditions with an AND operation.  That is, the label will be applied if
@@ -94,9 +126,9 @@ labels:
   mergeable: false
 ```
 
-A Pull Request with title "WIP: this is work in progress" *and* not in a
-mergeable state would be labelled as `WIP`.  If the Pull Request title changes
-to "This is done", or it becomes mergeable, then the `WIP` label would be
+A pull request with title "WIP: this is work in progress" *and* not in a
+mergeable state would be labelled as `WIP`.  If the title changes to
+"This is done", or it becomes mergeable, then the `WIP` label would be
 removed.
 
 If you wish to apply an OR, you may set multiple matchers for the same
@@ -127,11 +159,11 @@ labels:
   title: "^WIP:.*"
 ```
 
-A PR with title 'WIP: my feature' will get the `WIP` label.
+A PR or issue with title 'WIP: my feature' will get the `WIP` label.
 
-Now the title changes to `My feature`. Since the labeler configuration
-includes the `WIP` label, and its rule does not match anymore, the label
-will get removed.
+Now the title changes to `My feature` the label will get remove. This is
+because the labeler configuration includes the `WIP` label, and its rule
+does not match anymore.
 
 In some cases you would prefer that the action adds labels, but never
 removes them regardless of the matching status. To achieve this you can
@@ -154,52 +186,58 @@ With this config, the behaviour changes:
 
 ## Conditions
 
-Below are the conditions currently supported in label matchers. All conditions
-evaluate only when they are explicitly added in configuration (that is, there
-are no default values).
+Below are the conditions currently supported in label matchers. Note
+that some conditions are only applicable to pull requests.
 
-### Regex on title
+All conditions evaluate only when they are explicitly added in
+configuration (that is, there are no default values).
 
-This condition is satisfied when the PR title matches on the given regex.
+### Title
+
+This condition is satisfied when the title matches on the given regex.
 
 ```yaml
 title: "^WIP:.*"
 ```
 
-### Regex on branch
+### Branch (PRs only)
 
-This condition is satisfied when the PR branch matches on the given regex.
+This condition is satisfied when the PR branch matches on the given
+regex.
 
 ```yaml
 branch: "^feature/.*"
 ```
 
-### Regex on base branch
+### Base branch (PRs only)
 
-This condition is satisfied when the PR base branch matches on the given regex.
+This condition is satisfied when the PR base branch matches on the given
+regex.
 
 ```yaml
 base-branch: "master"
 ```
 
-### Regex on PR body 
+### Body (PRs and Issues)
 
-This condition is satisfied when the body (description) matches on the given regex.
+This condition is satisfied when the body (description) matches on the
+given regex.
 
 ``` yaml
 body: "^patch.*"
 ```
 
-### Regex on PR files
+### Files affected (PRs only)
 
-This condition is satisfied when any of the PR files matches on the given regexs.
+This condition is satisfied when any of the PR files matches on the
+given regexs.
 
 ```yaml
 files: 
 - "cmd/.*_tests.go"
 ```
 
-### Draft status
+### Draft status (PRs only)
 
 This condition is satisfied when the PR [draft
 state](https://developer.github.com/v3/pulls/#response-1) matches that of the
@@ -217,11 +255,11 @@ draft: false
 
 Matches if the PR is not a draft.
 
-### Mergeable status
+### Mergeable status (PRs only)
 
 This condition is satisfied when the [mergeable
-state](https://developer.github.com/v3/pulls/#response-1) matches that of the
-PR. 
+state](https://developer.github.com/v3/pulls/#response-1) matches that
+of the PR. 
 
 ```yaml
 mergeable: true
@@ -235,15 +273,16 @@ mergeable: false
 
 Will match if the label is not mergeable. 
 
-### Match to PR Author
+### Author (PRs and Issues)
 
-This condition is satisfied when the PR author matches any of the given usernames.
+This condition is satisfied when the author of the PR or Issue matches
+any of the given usernames.
 
 ```yaml
 author: "serubin"
 ```
 
-### PR size
+### Size (PRs only)
 
 This condition is satisfied when the total number of changed lines in
 the PR is within given thresholds.

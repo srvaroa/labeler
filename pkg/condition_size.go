@@ -12,11 +12,10 @@ func NewSizeCondition() Condition {
 		GetName: func() string {
 			return "Pull Request contains a number of changes"
 		},
+		CanEvaluate: func(target *Target) bool {
+			return target.ghPR != nil
+		},
 		Evaluate: func(target *Target, matcher LabelMatcher) (bool, error) {
-			if target.ghPR == nil {
-				log.Printf("Size only applies on PRs, skip condition")
-				return false, nil
-			}
 			if len(matcher.SizeBelow) == 0 && len(matcher.SizeAbove) == 0 {
 				return false, fmt.Errorf("size-above and size-below are not set in config")
 			}

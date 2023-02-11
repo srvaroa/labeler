@@ -11,6 +11,9 @@ func NewBodyCondition() Condition {
 		GetName: func() string {
 			return "Body matches regex"
 		},
+		CanEvaluate: func(target *Target) bool {
+			return true
+		},
 		Evaluate: func(target *Target, matcher LabelMatcher) (bool, error) {
 			if len(matcher.Body) <= 0 {
 				return false, fmt.Errorf("body is not set in config")
