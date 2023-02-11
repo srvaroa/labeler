@@ -1,5 +1,5 @@
-name: 'PR labeler based on multiple rules'
-description: 'Label Pull Requests based on configurable rules'
+name: 'Configurable labels for Pull Requests based on conditions'
+description: 'Label Pull Requests based on conditional rules'
 author: 'Galo Navarro <anglorvaroa@gmail.com>'
 inputs: 
   config_path:
