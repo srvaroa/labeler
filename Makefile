@@ -22,4 +22,4 @@ build: $(GO_DEPENDENCIES)
 	CGO_ENABLED=$(CGO_ENABLED) $(GO) build $(BUILDTAGS) $(BUILDFLAGS) -o action cmd/action.go
 
 test:
-	DISABLE_SSO=true CGO_ENABLED=$(CGO_ENABLED) $(GO) test -coverprofile=coverage.out $(PACKAGE_DIRS)
+	DISABLE_SSO=true CGO_ENABLED=$(CGO_ENABLED) $(GO) test -count 1 -coverprofile=coverage.out $(PACKAGE_DIRS)

@@ -37,15 +37,26 @@ type LabelUpdates struct {
 }
 
 type Labeler struct {
-	FetchRepoConfig    func(owner string, repoName string) (*LabelerConfigV1, error)
-	ReplaceLabelsForPr func(owner string, repoName string, prNumber int, labels []string) error
-	GetCurrentLabels   func(owner string, repoName string, prNumber int) ([]string, error)
-	Client             HttpClient
+	FetchRepoConfig  func() (*LabelerConfigV1, error)
+	ReplaceLabels    func(target *Target, labels []string) error
+	GetCurrentLabels func(target *Target) ([]string, error)
+	Client           HttpClient
 }
 
 type Condition struct {
-	Evaluate func(pr *gh.PullRequest, matcher LabelMatcher) (bool, error)
+	Evaluate func(target *Target, matcher LabelMatcher) (bool, error)
 	GetName  func() string
+}
+
+type Target struct {
+	Author   string
+	Body     string
+	IssueNo  int
+	Title    string
+	Owner    string
+	RepoName string
+	ghPR     *gh.PullRequest
+	ghIssue  *gh.Issue
 }
 
 // HandleEvent takes a GitHub Event and its raw payload (see link below)
@@ -62,25 +73,36 @@ func (l *Labeler) HandleEvent(
 	}
 	switch event := event.(type) {
 	case *gh.PullRequestEvent:
-		err = l.ExecuteOn(event.PullRequest)
+		err = l.ExecuteOn(WrapPrAsTarget(event.PullRequest))
 	case *gh.PullRequestTargetEvent:
-		err = l.ExecuteOn(event.PullRequest)
+		err = l.ExecuteOn(WrapPrAsTarget(event.PullRequest))
 	}
 	return err
 }
 
-func (l *Labeler) ExecuteOn(pr *gh.PullRequest) error {
-	owner := pr.Base.Repo.GetOwner().GetLogin()
-	repoName := *pr.Base.Repo.Name
+func WrapPrAsTarget(pr *gh.PullRequest) *Target {
+	return &Target{
+		Author:   *pr.GetUser().Login,
+		Body:     pr.GetBody(),
+		IssueNo:  *pr.Number,
+		Title:    pr.GetTitle(),
+		Owner:    pr.Base.Repo.GetOwner().GetLogin(),
+		RepoName: *pr.Base.Repo.Name,
+		ghPR:     pr,
+		ghIssue:  nil,
+	}
+}
 
-	config, err := l.FetchRepoConfig(owner, repoName)
+func (l *Labeler) ExecuteOn(target *Target) error {
 
-	labelUpdates, err := l.findMatches(pr, config)
+	config, err := l.FetchRepoConfig()
+
+	labelUpdates, err := l.findMatches(target, config)
 	if err != nil {
 		return err
 	}
 
-	currLabels, err := l.GetCurrentLabels(owner, repoName, *pr.Number)
+	currLabels, err := l.GetCurrentLabels(target)
 	if err != nil {
 		return err
 	}
@@ -117,11 +139,11 @@ func (l *Labeler) ExecuteOn(pr *gh.PullRequest) error {
 	}
 	log.Printf("Desired labels: %s", desiredLabels)
 
-	return l.ReplaceLabelsForPr(owner, repoName, *pr.Number, desiredLabels)
+	return l.ReplaceLabels(target, desiredLabels)
 }
 
-// findMatches returns all updates to be made to labels for the given PR
-func (l *Labeler) findMatches(pr *gh.PullRequest, config *LabelerConfigV1) (LabelUpdates, error) {
+// findMatches returns all updates to be made to labels for the given target
+func (l *Labeler) findMatches(target *Target, config *LabelerConfigV1) (LabelUpdates, error) {
 
 	labelUpdates := LabelUpdates{
 		set: map[string]bool{},
@@ -156,7 +178,7 @@ func (l *Labeler) findMatches(pr *gh.PullRequest, config *LabelerConfigV1) (Labe
 		delete(labelUpdates.set, label)
 
 		for _, c := range conditions {
-			isMatched, err := c.Evaluate(pr, matcher)
+			isMatched, err := c.Evaluate(target, matcher)
 			if err != nil {
 				log.Printf("%s: condition %s skipped (%s)", label, c.GetName(), err)
 				continue

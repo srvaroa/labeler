@@ -5,8 +5,6 @@ import (
 	"log"
 	"math"
 	"strconv"
-
-	gh "github.com/google/go-github/v35/github"
 )
 
 func NewSizeCondition() Condition {
@@ -14,7 +12,11 @@ func NewSizeCondition() Condition {
 		GetName: func() string {
 			return "Pull Request contains a number of changes"
 		},
-		Evaluate: func(pr *gh.PullRequest, matcher LabelMatcher) (bool, error) {
+		Evaluate: func(target *Target, matcher LabelMatcher) (bool, error) {
+			if target.ghPR == nil {
+				log.Printf("Size only applies on PRs, skip condition")
+				return false, nil
+			}
 			if len(matcher.SizeBelow) == 0 && len(matcher.SizeAbove) == 0 {
 				return false, fmt.Errorf("size-above and size-below are not set in config")
 			}
@@ -28,7 +30,7 @@ func NewSizeCondition() Condition {
 				lowerBound = 0
 				log.Printf("Lower boundary set to 0 (config has invalid or empty value)")
 			}
-			totalChanges := int64(math.Abs(float64(pr.GetAdditions() + pr.GetDeletions())))
+			totalChanges := int64(math.Abs(float64(target.ghPR.GetAdditions() + target.ghPR.GetDeletions())))
 			log.Printf("Matching %d changes in PR against bounds: (%d, %d)", totalChanges, lowerBound, upperBound)
 			isWithinBounds := totalChanges > lowerBound && totalChanges < upperBound
 			return isWithinBounds, nil

@@ -445,13 +445,13 @@ func TestHandleEvent(t *testing.T) {
 
 func NewTestLabeler(t *testing.T, tc TestCase) Labeler {
 	return Labeler{
-		FetchRepoConfig: func(owner, repoName string) (*LabelerConfigV1, error) {
+		FetchRepoConfig: func() (*LabelerConfigV1, error) {
 			return &tc.config, nil
 		},
-		GetCurrentLabels: func(owner, repoName string, prNumber int) ([]string, error) {
+		GetCurrentLabels: func(target *Target) ([]string, error) {
 			return tc.initialLabels, nil
 		},
-		ReplaceLabelsForPr: func(owner, repoName string, prNumber int, labels []string) error {
+		ReplaceLabels: func(target *Target, labels []string) error {
 			sort.Strings(tc.expectedLabels)
 			sort.Strings(labels)
 			if reflect.DeepEqual(tc.expectedLabels, labels) {
