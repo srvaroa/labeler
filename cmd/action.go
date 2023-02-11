@@ -57,7 +57,7 @@ func main() {
 		}
 
 		for _, pr := range prs {
-			err = l.ExecuteOn(pr)
+			err = l.ExecuteOn(labeler.WrapPrAsTarget(pr))
 			log.Printf("Unable to execute action: %+v", err)
 		}
 	} else {
@@ -163,21 +163,21 @@ func getEventPayload() *[]byte {
 func newLabeler(gh *github.Client, config *labeler.LabelerConfigV1) *labeler.Labeler {
 	l := labeler.Labeler{
 
-		FetchRepoConfig: func(owner string, repoName string) (*labeler.LabelerConfigV1, error) {
+		FetchRepoConfig: func() (*labeler.LabelerConfigV1, error) {
 			return config, nil
 		},
 
-		ReplaceLabelsForPr: func(owner string, repoName string, prNumber int, labels []string) error {
-			log.Printf("Setting labels to %s/%s#%d: %s", owner, repoName, prNumber, labels)
+		ReplaceLabels: func(target *labeler.Target, labels []string) error {
+			log.Printf("Setting labels to %s/%s#%d: %s", target.Owner, target.RepoName, target.IssueNo, labels)
 			_, _, err := gh.Issues.ReplaceLabelsForIssue(
-				context.Background(), owner, repoName, prNumber, labels)
+				context.Background(), target.Owner, target.RepoName, target.IssueNo, labels)
 			return err
 		},
 
-		GetCurrentLabels: func(owner string, repoName string, prNumber int) ([]string, error) {
+		GetCurrentLabels: func(target *labeler.Target) ([]string, error) {
 			opts := github.ListOptions{} // TODO: ignoring pagination here
 			currLabels, _, err := gh.Issues.ListLabelsByIssue(
-				context.Background(), owner, repoName, prNumber, &opts)
+				context.Background(), target.Owner, target.RepoName, target.IssueNo, &opts)
 
 			labels := []string{}
 			for _, label := range currLabels {
