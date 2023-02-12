@@ -15,6 +15,7 @@ type LabelMatcher struct {
 	Files      []string
 	Authors    []string
 	Mergeable  string
+	Draft      string
 	SizeBelow  string `yaml:"size-below"`
 	SizeAbove  string `yaml:"size-above"`
 }
@@ -130,6 +131,7 @@ func (l *Labeler) findMatches(pr *gh.PullRequest, config *LabelerConfigV1) (Labe
 		NewBranchCondition(),
 		NewBaseBranchCondition(),
 		NewIsMergeableCondition(),
+		NewIsDraftCondition(),
 		NewSizeCondition(),
 		NewBodyCondition(),
 		NewFilesCondition(l),

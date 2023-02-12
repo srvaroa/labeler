@@ -154,7 +154,9 @@ With this config, the behaviour changes:
 
 ## Conditions
 
-Below are the conditions currently supported in label matchers.
+Below are the conditions currently supported in label matchers. All conditions
+evaluate only when they are explicitly added in configuration (that is, there
+are no default values).
 
 ### Regex on title
 
@@ -197,13 +199,41 @@ files:
 - "cmd/.*_tests.go"
 ```
 
+### Draft status
+
+This condition is satisfied when the PR [draft
+state](https://developer.github.com/v3/pulls/#response-1) matches that of the
+PR.
+
+```yaml
+draft: true
+```
+
+Matches if the PR is a draft.
+
+```yaml
+draft: false
+```
+
+Matches if the PR is not a draft.
+
 ### Mergeable status
 
-This condition is satisfied when the PR is in a [mergeable state](https://developer.github.com/v3/pulls/#response-1).
+This condition is satisfied when the [mergeable
+state](https://developer.github.com/v3/pulls/#response-1) matches that of the
+PR. 
 
 ```yaml
 mergeable: true
 ```
+
+Will match if the label is mergeable. 
+
+```yaml
+mergeable: false
+```
+
+Will match if the label is not mergeable. 
 
 ### Match to PR Author
 

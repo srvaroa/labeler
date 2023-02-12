@@ -134,6 +134,52 @@ func TestHandleEvent(t *testing.T) {
 			expectedLabels: []string{"WIP"},
 		},
 		{
+			payloads: []string{"create_pr", "create_draft_pr"},
+			name:     "Draft PR without explicit value is not evaluated",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label: "NotADraft",
+					},
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{},
+		},
+		{
+			payloads: []string{"create_pr"},
+			name:     "Non draft PR with explicit config is evaluated",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label: "NotADraft",
+						Draft: "False",
+					},
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{"NotADraft"},
+		},
+
+		{
+			payloads: []string{"create_draft_pr"},
+			name:     "Draft PR",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label: "ThisIsADraft",
+						Draft: "True",
+					},
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{"ThisIsADraft"},
+		},
+
+		{
 			payloads: []string{"create_pr", "reopen_pr"},
 			name:     "Add a label with two conditions, one not matching (1)",
 			config: LabelerConfigV1{
@@ -362,7 +408,7 @@ func TestHandleEvent(t *testing.T) {
 			payloads: []string{"create_pr", "reopen_pr"},
 			name:     "AppendOnly enabled forbids deletions",
 			config: LabelerConfigV1{
-				Version:          1,
+				Version:    1,
 				AppendOnly: true,
 				Labels: []LabelMatcher{
 					{
