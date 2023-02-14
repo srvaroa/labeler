@@ -1,0 +1,20 @@
+name: Create Release Binary
+
+on: 
+  release:
+    types: [created, edited]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: wangyoucao577/go-release-action@v1.22
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        goos: linux
+        goarch: amd64
+        build_command: make build
+        overwrite: true
+        binary_name: action
+        asset_name: action
