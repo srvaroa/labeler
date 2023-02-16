@@ -1,4 +1,4 @@
-# Configurable labels based on conditions for pull requests and Issues
+# Label manager for PRs and issues based on configurable conditions
 
 [![labeler release (latest SemVer)](https://img.shields.io/github/v/release/srvaroa/labeler?sort=semver)](https://github.com/srvaroa/labeler/releases)  
 
@@ -7,19 +7,25 @@ Action](https://help.github.com/en/categories/automating-your-workflow-with-gith
 that can manage multiple labels for both pull requests and Issues using
 configurable matching rules.
 
-## Updates
+## Sponsors
 
-The action will strive to maintain backwards compatibility with older
-configuration versions. It is nevertheless encouraged to update your
-configuration files to benefit from newer features. Please follow our
-[releases](https://github.com/srvaroa/labeler/releases) page to stay up
-to date.
+Thanks to [Launchgood](https://github.com/launchgood) for sponsoring
+this project.
+
+Please consider supporting the project if your organization is finding
+it useful (GitHub Sponsors link incoming).
 
 ## Installing
 
 The action is configured by adding a file `.github/labeler.yml`. The
 file contains matching rules expanded in the `Configuration` section
 below.
+
+The action will strive to maintain backwards compatibility with older
+configuration versions. It is nevertheless encouraged to update your
+configuration files to benefit from newer features. Please follow our
+[releases](https://github.com/srvaroa/labeler/releases) page to stay up
+to date.
 
 ### How to trigger action
 

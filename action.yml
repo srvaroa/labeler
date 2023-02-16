@@ -1,5 +1,5 @@
-name: 'Manage labels based on multiple conditions'
-description: 'All-in-one action to label Pull Requests based on many, extensible conditional rules'
+name: 'Label manager for PRs and Issues based on configurable conditions'
+description: 'All-in-one action to manage labels in PRs and Issues based on many, extensible conditional rules'
 author: 'Galo Navarro <anglorvaroa@gmail.com>'
 inputs: 
   config_path:
