@@ -30,7 +30,7 @@ to date.
 ### How to trigger action
 
 To trigger the action on events, add a file `.github/workflows/main.yml`
-to your repository with these contents:
+to your repository: 
 
 ```yaml
 name: Label PRs
@@ -49,6 +49,10 @@ jobs:
       env:
         GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 ```
+
+Using `@master` will run the latest available release. Feel free to pin
+this to a specific version from the [releases
+page](https://github.com/srvaroa/labeler/releases).
 
 Use the [`on`
 clause](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows)
