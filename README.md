@@ -157,6 +157,35 @@ labels:
 The `WIP` label will be set if the title matches `^WIP:.*` OR the label
 is not in a mergeable state.
 
+Adding a `negate` property inside the label block will negate the
+result of the evaluation of all conditions inside the label. For
+example:
+
+```yaml
+version: 1
+labels:
+- label: "unknown"
+  negate: true
+  branch: "(master|hotfix)"
+```
+
+In this case, label `unknown` will be set if the branch does NOT match
+`master` or `hotfix`.
+
+The same behaviour occurs with multiple conditions:
+
+```yaml
+version: 1
+labels:
+- label: "unknown"
+  negate: true
+  branch: "master"
+  title: "(feat).*"
+```
+
+Only PRs that do NOT match one of the two conditions will get the
+`unknown` label.
+
 ## Append-only mode
 
 The default behaviour of this action includes *removing* labels that

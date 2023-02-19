@@ -308,6 +308,23 @@ func TestHandleEvent(t *testing.T) {
 		},
 		{
 			event:    "pull_request",
+			payloads: []string{"small_pr"},
+			name:     "Test the branch rule (matching, but negated)",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label:  "Branch",
+						Negate: true,
+						Branch: "^does/not-match/*",
+					},
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{"Branch"},
+		},
+		{
+			event:    "pull_request",
 			payloads: []string{"create_pr"},
 			name:     "Test the base branch rule (matching)",
 			config: LabelerConfigV1{
@@ -387,6 +404,41 @@ func TestHandleEvent(t *testing.T) {
 			},
 			initialLabels:  []string{},
 			expectedLabels: []string{"Files"},
+		},
+		{
+			event:    "pull_request",
+			payloads: []string{"small_pr"},
+			name:     "Multiple conditions for the same label function as AND",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label:  "Branch",
+						Branch: "^srvaroa-patch.*",
+						Title:  "^W.*Update.*",
+					},
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{"Branch"},
+		},
+		{
+			event:    "pull_request",
+			payloads: []string{"small_pr"},
+			name:     "Multiple conditions for the same label function as AND, but negated make a true",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label:  "Branch",
+						Negate: true,
+						Title:  "^Update.*",
+						Branch: "^srvaroa-patch.*",
+					},
+				},
+			},
+			initialLabels:  []string{"Branch"},
+			expectedLabels: []string{"Branch"},
 		},
 		{
 			event:    "pull_request",
