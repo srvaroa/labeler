@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-func NewSizeCondition() Condition {
+func SizeCondition() Condition {
 	return Condition{
 		GetName: func() string {
 			return "Pull Request contains a number of changes"

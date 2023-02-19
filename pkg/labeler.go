@@ -182,15 +182,15 @@ func (l *Labeler) findMatches(target *Target, config *LabelerConfigV1) (LabelUpd
 		set: map[string]bool{},
 	}
 	conditions := []Condition{
-		NewTitleCondition(),
-		NewBranchCondition(),
-		NewBaseBranchCondition(),
-		NewIsMergeableCondition(),
-		NewIsDraftCondition(),
-		NewSizeCondition(),
-		NewBodyCondition(),
-		NewFilesCondition(l),
-		NewAuthorCondition(),
+		TitleCondition(),
+		BranchCondition(),
+		BaseBranchCondition(),
+		IsMergeableCondition(),
+		IsDraftCondition(),
+		SizeCondition(),
+		BodyCondition(),
+		FilesCondition(l),
+		AuthorCondition(),
 	}
 
 	for _, matcher := range config.Labels {

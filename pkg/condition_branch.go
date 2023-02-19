@@ -6,7 +6,7 @@ import (
 	"regexp"
 )
 
-func NewBranchCondition() Condition {
+func BranchCondition() Condition {
 	return Condition{
 		GetName: func() string {
 			return "Branch matches regex"

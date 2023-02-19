@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-func NewIsDraftCondition() Condition {
+func IsDraftCondition() Condition {
 	return Condition{
 		GetName: func() string {
 			return "Pull Request is draft"
