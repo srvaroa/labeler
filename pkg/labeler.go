@@ -10,6 +10,7 @@ import (
 
 type LabelMatcher struct {
 	Label      string
+	Negate     bool
 	Title      string
 	Branch     string
 	BaseBranch string `yaml:"base-branch"`
@@ -232,6 +233,12 @@ func (l *Labeler) findMatches(target *Target, config *LabelerConfigV1) (LabelUpd
 			if isMatched {
 				continue
 			}
+		}
+
+		if matcher.Negate {
+			result, _ := labelUpdates.set[label]
+			labelUpdates.set[label] = !result
+			log.Printf("[%s] is negated from %t", label, result)
 		}
 	}
 
