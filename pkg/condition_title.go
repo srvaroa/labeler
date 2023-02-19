@@ -6,7 +6,7 @@ import (
 	"regexp"
 )
 
-func NewTitleCondition() Condition {
+func TitleCondition() Condition {
 	return Condition{
 		GetName: func() string {
 			return "Title matches regex"

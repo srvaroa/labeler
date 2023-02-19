@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-func NewIsMergeableCondition() Condition {
+func IsMergeableCondition() Condition {
 	return Condition{
 		GetName: func() string {
 			return "Pull Request is mergeable"

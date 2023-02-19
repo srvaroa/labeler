@@ -13,7 +13,7 @@ import (
 	"github.com/waigani/diffparser"
 )
 
-func NewFilesCondition(l *Labeler) Condition {
+func FilesCondition(l *Labeler) Condition {
 	prFiles := []string{}
 
 	return Condition{

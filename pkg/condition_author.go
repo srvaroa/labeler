@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func NewAuthorCondition() Condition {
+func AuthorCondition() Condition {
 	return Condition{
 		GetName: func() string {
 			return "Author matches"

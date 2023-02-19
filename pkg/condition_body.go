@@ -6,7 +6,7 @@ import (
 	"regexp"
 )
 
-func NewBodyCondition() Condition {
+func BodyCondition() Condition {
 	return Condition{
 		GetName: func() string {
 			return "Body matches regex"
