@@ -22,6 +22,8 @@ labels:
       - "Test1"
       - "Test2"
   - label: "TestDraft"
-    draft: "True"
+    draft: True
   - label: "TestMergeable"
-    mergeable: "True"
+    mergeable: True
+  - label: "TestAuthorCanMerge"
+    author-can-merge: True

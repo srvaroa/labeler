@@ -284,13 +284,13 @@ state](https://developer.github.com/v3/pulls/#response-1) matches that of the
 PR.
 
 ```yaml
-draft: true
+draft: True
 ```
 
 Matches if the PR is a draft.
 
 ```yaml
-draft: false
+draft: False
 ```
 
 Matches if the PR is not a draft.
@@ -302,13 +302,13 @@ state](https://developer.github.com/v3/pulls/#response-1) matches that
 of the PR. 
 
 ```yaml
-mergeable: true
+mergeable: True
 ```
 
 Will match if the label is mergeable. 
 
 ```yaml
-mergeable: false
+mergeable: False
 ```
 
 Will match if the label is not mergeable. 
@@ -321,6 +321,16 @@ any of the given usernames.
 ```yaml
 authors: ["serubin"]
 ```
+
+### Author can merge (PRs)
+
+This condition is satisfied when the author of the PR can merge it.
+This is implemented by checking if the author is an owner of the repo.
+
+```yaml
+author-can-merge: True
+```
+
 
 ### Size (PRs only)
 

@@ -9,18 +9,19 @@ import (
 )
 
 type LabelMatcher struct {
-	Label      string
-	Negate     bool
-	Title      string
-	Branch     string
-	BaseBranch string `yaml:"base-branch"`
-	Body       string
-	Files      []string
-	Authors    []string
-	Mergeable  string
-	Draft      string
-	SizeBelow  string `yaml:"size-below"`
-	SizeAbove  string `yaml:"size-above"`
+	AuthorCanMerge string `yaml:"author-can-merge"`
+	Authors        []string
+	BaseBranch     string `yaml:"base-branch"`
+	Body           string
+	Branch         string
+	Draft          string
+	Files          []string
+	Label          string
+	Mergeable      string
+	Negate         bool
+	SizeAbove      string `yaml:"size-above"`
+	SizeBelow      string `yaml:"size-below"`
+	Title          string
 }
 
 type LabelerConfigV0 map[string]LabelMatcher
@@ -183,15 +184,16 @@ func (l *Labeler) findMatches(target *Target, config *LabelerConfigV1) (LabelUpd
 		set: map[string]bool{},
 	}
 	conditions := []Condition{
-		TitleCondition(),
-		BranchCondition(),
-		BaseBranchCondition(),
-		IsMergeableCondition(),
-		IsDraftCondition(),
-		SizeCondition(),
-		BodyCondition(),
-		FilesCondition(l),
 		AuthorCondition(),
+		AuthorCanMergeCondition(),
+		BaseBranchCondition(),
+		BodyCondition(),
+		BranchCondition(),
+		FilesCondition(l),
+		IsDraftCondition(),
+		IsMergeableCondition(),
+		SizeCondition(),
+		TitleCondition(),
 	}
 
 	for _, matcher := range config.Labels {
