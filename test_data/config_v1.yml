@@ -21,3 +21,7 @@ labels:
     authors: 
       - "Test1"
       - "Test2"
+  - label: "TestDraft"
+    draft: "True"
+  - label: "TestMergeable"
+    mergeable: "True"

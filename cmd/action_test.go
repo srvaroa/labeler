@@ -132,6 +132,14 @@ func TestGetLabelerConfigV1(t *testing.T) {
 					"Test2",
 				},
 			},
+			{
+				Label: "TestDraft",
+				Draft: "True",
+			},
+			{
+				Label:     "TestMergeable",
+				Mergeable: "True",
+			},
 		},
 	}
 
