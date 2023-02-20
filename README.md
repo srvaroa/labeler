@@ -5,7 +5,18 @@
 Implements an all-in-one [GitHub
 Action](https://help.github.com/en/categories/automating-your-workflow-with-github-actions)
 that can manage multiple labels for both pull requests and Issues using
-configurable matching rules.
+configurable matching rules. Available conditions:
+
+* [Author can merge](#author-can-merge)
+* [Authors](#authors)
+* [Base branch](#base-branch)
+* [Body](#body)
+* [Branch](#branch)
+* [Draft](#draft)
+* [Files](#files)
+* [Mergeable](#mergeable)
+* [Size](#size)
+* [Title](#title)
 
 ## Sponsors
 
@@ -228,30 +239,31 @@ With this config, the behaviour changes:
 
 ## Conditions
 
-Below are the conditions currently supported in label matchers. Note
-that some conditions are only applicable to pull requests.
+Below are the conditions currently supported in label matchers, in 
+alphabetical order. Note that some conditions are only applicable to
+pull requests.
 
 All conditions evaluate only when they are explicitly added in
 configuration (that is, there are no default values).
 
-### Title
+### Author can merge (PRs) <a name="author-can-merge" />
 
-This condition is satisfied when the title matches on the given regex.
-
-```yaml
-title: "^WIP:.*"
-```
-
-### Branch (PRs only)
-
-This condition is satisfied when the PR branch matches on the given
-regex.
+This condition is satisfied when the author of the PR can merge it.
+This is implemented by checking if the author is an owner of the repo.
 
 ```yaml
-branch: "^feature/.*"
+author-can-merge: True
+```
+### Authors (PRs and Issues)  <a name="authors" />
+
+This condition is satisfied when the author of the PR or Issue matches
+any of the given usernames.
+
+```yaml
+authors: ["serubin"]
 ```
 
-### Base branch (PRs only)
+### Base branch (PRs only) <a name="base-branch" />
 
 This condition is satisfied when the PR base branch matches on the given
 regex.
@@ -260,7 +272,7 @@ regex.
 base-branch: "master"
 ```
 
-### Body (PRs and Issues)
+### Body (PRs and Issues) <a name="body" />
 
 This condition is satisfied when the body (description) matches on the
 given regex.
@@ -269,17 +281,16 @@ given regex.
 body: "^patch.*"
 ```
 
-### Files affected (PRs only)
+### Branch (PRs only) <a name="branch" />
 
-This condition is satisfied when any of the PR files matches on the
-given regexs.
+This condition is satisfied when the PR branch matches on the given
+regex.
 
 ```yaml
-files: 
-- "cmd/.*_tests.go"
+branch: "^feature/.*"
 ```
 
-### Draft status (PRs only)
+### Draft status (PRs only) <a name="draft" />
 
 This condition is satisfied when the PR [draft
 state](https://developer.github.com/v3/pulls/#response-1) matches that of the
@@ -297,7 +308,17 @@ draft: False
 
 Matches if the PR is not a draft.
 
-### Mergeable status (PRs only)
+### Files affected (PRs only) <a name="files" />
+
+This condition is satisfied when any of the PR files matches on the
+given regexs.
+
+```yaml
+files: 
+- "cmd/.*_tests.go"
+```
+
+### Mergeable status (PRs only) <a name="mergeable" />
 
 This condition is satisfied when the [mergeable
 state](https://developer.github.com/v3/pulls/#response-1) matches that
@@ -315,26 +336,7 @@ mergeable: False
 
 Will match if the label is not mergeable. 
 
-### Authors (PRs and Issues)
-
-This condition is satisfied when the author of the PR or Issue matches
-any of the given usernames.
-
-```yaml
-authors: ["serubin"]
-```
-
-### Author can merge (PRs)
-
-This condition is satisfied when the author of the PR can merge it.
-This is implemented by checking if the author is an owner of the repo.
-
-```yaml
-author-can-merge: True
-```
-
-
-### Size (PRs only)
+### Size (PRs only) <a name="size" />
 
 This condition is satisfied when the total number of changed lines in
 the PR is within given thresholds.
@@ -362,3 +364,11 @@ reported by the [GitHub API](https://developer.github.com/v3/pulls).
 |First example|1|1|S|
 |Second example|5|42|M|
 |Third example|68|148|L|
+
+### Title <a name="title" />
+
+This condition is satisfied when the title matches on the given regex.
+
+```yaml
+title: "^WIP:.*"
+```
