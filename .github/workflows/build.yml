@@ -1,7 +1,9 @@
 ---
-name: Build and test Go
+name: Build and test
 on:
   pull_request:
+  push:
+    branches: [master]
 
 jobs:
   build:
