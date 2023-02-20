@@ -140,6 +140,10 @@ func TestGetLabelerConfigV1(t *testing.T) {
 				Label:     "TestMergeable",
 				Mergeable: "True",
 			},
+			{
+				Label:          "TestAuthorCanMerge",
+				AuthorCanMerge: "True",
+			},
 		},
 	}
 

@@ -499,6 +499,38 @@ func TestHandleEvent(t *testing.T) {
 			// BUT because AppendOnly is set, we do not erase it
 			expectedLabels: []string{"Fix"},
 		},
+		{
+			event:    "pull_request",
+			payloads: []string{"create_pr", "reopen_pr"},
+			name:     "Add a label when the author can merge",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label:          "Test",
+						AuthorCanMerge: "True",
+					},
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{"Test"},
+		},
+		{
+			event:    "pull_request",
+			payloads: []string{"create_pr_non_owner"},
+			name:     "Add a label when the author cannot merge",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label:          "Test",
+						AuthorCanMerge: "True",
+					},
+				},
+			},
+			initialLabels:  []string{"Test"},
+			expectedLabels: []string{},
+		},
 
 		// Issues
 
