@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/go-yaml/yaml"
-	"github.com/google/go-github/v35/github"
+	"github.com/google/go-github/v50/github"
 	labeler "github.com/srvaroa/labeler/pkg"
 	"golang.org/x/oauth2"
 )

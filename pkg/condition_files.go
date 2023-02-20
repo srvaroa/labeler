@@ -9,7 +9,7 @@ import (
 	"regexp"
 	"strings"
 
-	gh "github.com/google/go-github/v35/github"
+	gh "github.com/google/go-github/v50/github"
 	"github.com/waigani/diffparser"
 )
 
