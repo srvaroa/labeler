@@ -157,6 +157,8 @@ labels:
 The `WIP` label will be set if the title matches `^WIP:.*` OR the label
 is not in a mergeable state.
 
+### Negate rules
+
 Adding a `negate` property inside the label block will negate the
 result of the evaluation of all conditions inside the label. For
 example:
@@ -165,7 +167,7 @@ example:
 version: 1
 labels:
 - label: "unknown"
-  negate: true
+  negate: True
   branch: "(master|hotfix)"
 ```
 
@@ -178,7 +180,7 @@ The same behaviour occurs with multiple conditions:
 version: 1
 labels:
 - label: "unknown"
-  negate: true
+  negate: True
   branch: "master"
   title: "(feat).*"
 ```
