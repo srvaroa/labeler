@@ -5,7 +5,7 @@ import (
 	"log"
 	"strings"
 
-	gh "github.com/google/go-github/v35/github"
+	gh "github.com/google/go-github/v50/github"
 )
 
 type LabelMatcher struct {
