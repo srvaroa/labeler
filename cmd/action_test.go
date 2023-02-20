@@ -148,6 +148,43 @@ func TestGetLabelerConfigV1(t *testing.T) {
 	}
 }
 
+func TestGetLabelerConfigV1WithIssues(t *testing.T) {
+
+	file, err := os.Open("../test_data/config_v1_issues.yml")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	contents, err := ioutil.ReadAll(file)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var c *l.LabelerConfigV1
+	c, err = getLabelerConfig(&contents)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expect := l.LabelerConfigV1{
+		Version: 1,
+		Issues:  true,
+		Labels: []l.LabelMatcher{
+			{
+				Label: "Test",
+				Authors: []string{
+					"Test1",
+					"Test2",
+				},
+			},
+		},
+	}
+
+	if !cmp.Equal(expect, *c) {
+		t.Fatalf("Expect: %+v Got: %+v", expect, c)
+	}
+}
+
 func TestGetLabelerConfig2V1(t *testing.T) {
 
 	file, err := os.Open("../test_data/config2_v1.yml")
