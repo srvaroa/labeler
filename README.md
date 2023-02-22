@@ -24,7 +24,7 @@ Thanks to [Launchgood](https://github.com/launchgood) for sponsoring
 this project.
 
 Please consider supporting the project if your organization is finding
-it useful (GitHub Sponsors link incoming).
+it useful, you can do this through [GitHub Sponsors](https://github.com/sponsors/srvaroa).
 
 ## Installing
 
