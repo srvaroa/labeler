@@ -9,6 +9,5 @@ LABEL "com.github.actions.name"="Condition-based Pull Request labeller" \
 
 WORKDIR /
 ARG ASSET_URL=https://github.com/srvaroa/labeler/releases/latest/download/action.tar.gz
-RUN apk --no-cache add curl
-RUN curl -sSL $ASSET_URL | tar xzvf -
+RUN wget -q -O- $ASSET_URL | tar xzvf -
 ENTRYPOINT ["/action"]
