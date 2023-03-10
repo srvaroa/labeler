@@ -4,19 +4,19 @@
 
 Implements an all-in-one [GitHub
 Action](https://help.github.com/en/categories/automating-your-workflow-with-github-actions)
-that can manage multiple labels for both pull requests and Issues using
+that can manage multiple labels for both Pull Requests and Issues using
 configurable matching rules. Available conditions:
 
-* [Author can merge](#author-can-merge)
-* [Authors](#authors)
-* [Base branch](#base-branch)
-* [Body](#body)
-* [Branch](#branch)
-* [Draft](#draft)
-* [Files](#files)
-* [Mergeable](#mergeable)
-* [Size](#size)
-* [Title](#title)
+* [Author can merge](#author-can-merge): label based on whether the author can merge the PR
+* [Authors](#authors): label based on the PR/Issue authors
+* [Base branch](#base-branch): label based on the PR's base branch
+* [Body](#body): label based on the PR/Issue body
+* [Branch](#branch): label based on the PR branch
+* [Draft](#draft): label based on whether the branch is mergeable
+* [Files](#files): label based on the files modified in the PR
+* [Mergeable](#mergeable): label based o whether the PR is mergeable
+* [Size](#size): label based on the PR size
+* [Title](#title): label based on the PR/Issue title
 
 ## Sponsors
 
