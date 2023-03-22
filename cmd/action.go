@@ -34,7 +34,7 @@ func main() {
 		return
 	}
 
-	config, err := getLabelerConfig(configRaw)
+	config, err := getLabelerConfigV1(configRaw)
 	if err != nil {
 		return
 	}
@@ -89,15 +89,15 @@ func getRepoFile(gh *github.Client, repo, file, sha string) (*[]byte, error) {
 	return &raw, err
 }
 
-// getLabelerConfig builds a LabelerConfigV1 from a raw yaml
-func getLabelerConfig(configRaw *[]byte) (*labeler.LabelerConfigV1, error) {
+// getLabelerConfigV1 builds a LabelerConfigV1 from a raw yaml
+func getLabelerConfigV1(configRaw *[]byte) (*labeler.LabelerConfigV1, error) {
 	var c labeler.LabelerConfigV1
 	err := yaml.Unmarshal(*configRaw, &c)
 	if err != nil {
 		log.Printf("Unable to unmarshall config %s: ", err)
 	}
 	if c.Version == 0 {
-		c, err = getLabelerConfigV1(configRaw)
+		c, err = getLabelerConfigV0(configRaw)
 		if err != nil {
 			log.Printf("Unable to unmarshall legacy config %s: ", err)
 		}
@@ -105,7 +105,7 @@ func getLabelerConfig(configRaw *[]byte) (*labeler.LabelerConfigV1, error) {
 	return &c, err
 }
 
-func getLabelerConfigV1(configRaw *[]byte) (labeler.LabelerConfigV1, error) {
+func getLabelerConfigV0(configRaw *[]byte) (labeler.LabelerConfigV1, error) {
 
 	// Load v0
 	var oldCfg map[string]labeler.LabelMatcher

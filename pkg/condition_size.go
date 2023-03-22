@@ -16,15 +16,34 @@ func SizeCondition() Condition {
 			return target.ghPR != nil
 		},
 		Evaluate: func(target *Target, matcher LabelMatcher) (bool, error) {
-			if len(matcher.SizeBelow) == 0 && len(matcher.SizeAbove) == 0 {
-				return false, fmt.Errorf("size-above and size-below are not set in config")
+
+			if isNewConfig(matcher) && isOldConfig(matcher) {
+				log.Printf("WARNING: you are using both the old " +
+					"`size-above`/`size-below` settings together with " +
+					"the newer `size`. You should use only the latter. " +
+					"This condition will apply the configurations set in `Size` " +
+					"and ignore the rest")
 			}
-			upperBound, err := strconv.ParseInt(matcher.SizeBelow, 0, 64)
+
+			realMatcher := matcher.Size
+			if realMatcher == nil {
+				if matcher.SizeBelow == "" && matcher.SizeAbove == "" {
+					return false, fmt.Errorf("no size conditions are set in config")
+				}
+				realMatcher = &SizeConfig{
+					Above: matcher.SizeAbove,
+					Below: matcher.SizeBelow,
+				}
+			}
+
+			log.Printf("Checking PR size using config: %+v", realMatcher)
+
+			upperBound, err := strconv.ParseInt(realMatcher.Below, 0, 64)
 			if err != nil {
 				upperBound = math.MaxInt64
 				log.Printf("Upper boundary set to %d (config has invalid or empty value)", upperBound)
 			}
-			lowerBound, err := strconv.ParseInt(matcher.SizeAbove, 0, 32)
+			lowerBound, err := strconv.ParseInt(realMatcher.Above, 0, 32)
 			if err != nil || lowerBound < 0 {
 				lowerBound = 0
 				log.Printf("Lower boundary set to 0 (config has invalid or empty value)")
@@ -35,4 +54,12 @@ func SizeCondition() Condition {
 			return isWithinBounds, nil
 		},
 	}
+}
+
+func isNewConfig(matcher LabelMatcher) bool {
+	return matcher.Size != nil
+}
+
+func isOldConfig(matcher LabelMatcher) bool {
+	return matcher.SizeAbove != "" || matcher.SizeBelow != ""
 }
