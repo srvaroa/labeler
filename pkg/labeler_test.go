@@ -260,6 +260,25 @@ func TestHandleEvent(t *testing.T) {
 		},
 		{
 			event:    "pull_request",
+			payloads: []string{"mid_pr"},
+			name:     "Test the size_below and size_above rules with new composite config",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label: "M",
+						Size: &SizeConfig{
+							Above: "9",
+							Below: "100",
+						},
+					},
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{"M"},
+		},
+		{
+			event:    "pull_request",
 			payloads: []string{"big_pr"},
 			name:     "Test the size_above rule",
 			config: LabelerConfigV1{

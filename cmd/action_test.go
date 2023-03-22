@@ -3,10 +3,12 @@ package main
 import (
 	"io/ioutil"
 	"os"
+	"reflect"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
 	l "github.com/srvaroa/labeler/pkg"
+	labeler "github.com/srvaroa/labeler/pkg"
 )
 
 func TestGetLabelerConfigV0(t *testing.T) {
@@ -22,7 +24,7 @@ func TestGetLabelerConfigV0(t *testing.T) {
 	}
 
 	var c *l.LabelerConfigV1
-	c, err = getLabelerConfig(&contents)
+	c, err = getLabelerConfigV1(&contents)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -85,7 +87,7 @@ func TestGetLabelerConfigV1(t *testing.T) {
 	}
 
 	var c *l.LabelerConfigV1
-	c, err = getLabelerConfig(&contents)
+	c, err = getLabelerConfigV1(&contents)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -165,7 +167,7 @@ func TestGetLabelerConfigV1WithIssues(t *testing.T) {
 	}
 
 	var c *l.LabelerConfigV1
-	c, err = getLabelerConfig(&contents)
+	c, err = getLabelerConfigV1(&contents)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -189,6 +191,47 @@ func TestGetLabelerConfigV1WithIssues(t *testing.T) {
 	}
 }
 
+func TestGetLabelerConfigV1WithCompositeSize(t *testing.T) {
+
+	file, err := os.Open("../test_data/config_v1_composite_size.yml")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	contents, err := ioutil.ReadAll(file)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var c *l.LabelerConfigV1
+	c, err = getLabelerConfigV1(&contents)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expect := l.LabelerConfigV1{
+		Version: 1,
+		Labels: []l.LabelMatcher{
+			{
+				Label:     "S",
+				SizeAbove: "1",
+				SizeBelow: "10",
+			},
+			{
+				Label: "M",
+				Size: &labeler.SizeConfig{
+					Above: "9",
+					Below: "100",
+				},
+			},
+		},
+	}
+
+	if !reflect.DeepEqual(expect, *c) {
+		t.Fatalf("\nExpect: %#v \nGot: %#v", expect, *c)
+	}
+}
+
 func TestGetLabelerConfig2V1(t *testing.T) {
 
 	file, err := os.Open("../test_data/config2_v1.yml")
@@ -202,7 +245,7 @@ func TestGetLabelerConfig2V1(t *testing.T) {
 	}
 
 	var c *l.LabelerConfigV1
-	c, err = getLabelerConfig(&contents)
+	c, err = getLabelerConfigV1(&contents)
 	if err != nil {
 		t.Fatal(err)
 	}

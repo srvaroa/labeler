@@ -348,12 +348,15 @@ For example, given this `.github/labeler.yml`:
 
 ```yaml
 - label: "S"
-  size-below: 10
+  size:
+      below: 10
 - label: "M"
-  size-above: 9
-  size-below: 100
+  size:
+      above: 9
+      below: 100
 - label: "L"
-  size-above: 100
+  size:
+      above: 100
 ```
 
 These would be the labels assigned to some PRs, based on their size as
@@ -364,6 +367,11 @@ reported by the [GitHub API](https://developer.github.com/v3/pulls).
 |First example|1|1|S|
 |Second example|5|42|M|
 |Third example|68|148|L|
+
+**NOTICE** the old format for specifying size properties (`size-above`
+and `size-below`) has been deprecated. The action will continue
+supporting old configs for now, but users are encouraged to migrate to
+the new configuration schema.
 
 ### Title <a name="title" />
 

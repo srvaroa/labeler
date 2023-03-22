@@ -8,6 +8,11 @@ import (
 	gh "github.com/google/go-github/v50/github"
 )
 
+type SizeConfig struct {
+	Above string
+	Below string
+}
+
 type LabelMatcher struct {
 	AuthorCanMerge string `yaml:"author-can-merge"`
 	Authors        []string
@@ -19,9 +24,16 @@ type LabelMatcher struct {
 	Label          string
 	Mergeable      string
 	Negate         bool
-	SizeAbove      string `yaml:"size-above"`
-	SizeBelow      string `yaml:"size-below"`
-	Title          string
+	Size           *SizeConfig
+	// size-legacy
+	// These two are unused in the codebase (they get copied inside
+	// the Size object), but we keep them to respect backwards
+	// compatiblity parsing older configs without adding more
+	// complexity.
+	SizeAbove string `yaml:"size-above"`
+	SizeBelow string `yaml:"size-below"`
+	// size-legacy
+	Title string
 }
 
 type LabelerConfigV0 map[string]LabelMatcher

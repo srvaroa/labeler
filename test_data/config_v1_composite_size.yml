@@ -1,0 +1,9 @@
+version: 1
+labels:
+  - label: S
+    size-below: 10
+    size-above: 1
+  - label: M
+    size:
+      above: 9
+      below: 100
