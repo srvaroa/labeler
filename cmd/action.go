@@ -152,6 +152,8 @@ func getEventPayload() *[]byte {
 }
 
 func newLabeler(gh *github.Client, config *labeler.LabelerConfigV1) *labeler.Labeler {
+	ctx := context.Background()
+
 	l := labeler.Labeler{
 
 		FetchRepoConfig: func() (*labeler.LabelerConfigV1, error) {
@@ -176,7 +178,24 @@ func newLabeler(gh *github.Client, config *labeler.LabelerConfigV1) *labeler.Lab
 			}
 			return labels, err
 		},
-		GitHub: gh,
+		GitHubFacade: &labeler.GitHubFacade{
+			GetRawDiff: func(owner, repo string, prNumber int) (string, error) {
+				diff, _, err := gh.PullRequests.GetRaw(ctx,
+					owner, repo, prNumber,
+					github.RawOptions{github.Diff})
+				return diff, err
+			},
+			ListIssuesByRepo: func(owner, repo string) ([]*github.Issue, error) {
+				issues, _, err := gh.Issues.ListByRepo(ctx,
+					owner, repo, &github.IssueListByRepoOptions{})
+				return issues, err
+			},
+			ListPRs: func(owner, repo string) ([]*github.PullRequest, error) {
+				prs, _, err := gh.PullRequests.List(ctx,
+					owner, repo, &github.PullRequestListOptions{})
+				return prs, err
+			},
+		},
 		Client: labeler.NewDefaultHttpClient(),
 	}
 	return &l
