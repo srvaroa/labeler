@@ -1,7 +1,6 @@
 package labeler
 
 import (
-	"context"
 	"log"
 	"strings"
 
@@ -9,8 +8,9 @@ import (
 )
 
 type SizeConfig struct {
-	Above string
-	Below string
+	ExcludeFiles []string `yaml:"exclude-files"`
+	Above        string
+	Below        string
 }
 
 type LabelMatcher struct {
@@ -55,11 +55,18 @@ type LabelUpdates struct {
 	set map[string]bool
 }
 
+// Just to make this mockable..
+type GitHubFacade struct {
+	GetRawDiff       func(owner, repo string, prNumber int) (string, error)
+	ListIssuesByRepo func(owner, repo string) ([]*gh.Issue, error)
+	ListPRs          func(owner, repo string) ([]*gh.PullRequest, error)
+}
+
 type Labeler struct {
 	FetchRepoConfig  func() (*LabelerConfigV1, error)
 	ReplaceLabels    func(target *Target, labels []string) error
 	GetCurrentLabels func(target *Target) ([]string, error)
-	GitHub           *gh.Client
+	GitHubFacade     *GitHubFacade
 	Client           HttpClient
 }
 
@@ -204,7 +211,7 @@ func (l *Labeler) findMatches(target *Target, config *LabelerConfigV1) (LabelUpd
 		FilesCondition(l),
 		IsDraftCondition(),
 		IsMergeableCondition(),
-		SizeCondition(),
+		SizeCondition(l),
 		TitleCondition(),
 	}
 
@@ -272,10 +279,7 @@ func (l *Labeler) ProcessAllIssues(owner, repo string) {
 			"process issues in the scheduled execution mode")
 	}
 
-	issues, _, err := l.GitHub.Issues.ListByRepo(
-		context.Background(),
-		owner, repo,
-		&gh.IssueListByRepoOptions{})
+	issues, err := l.GitHubFacade.ListIssuesByRepo(owner, repo)
 
 	if err != nil {
 		log.Printf("Unable to list issues in %s/%s: %+v", owner, repo, err)
@@ -290,10 +294,7 @@ func (l *Labeler) ProcessAllIssues(owner, repo string) {
 
 func (l *Labeler) ProcessAllPRs(owner, repo string) {
 
-	prs, _, err := l.GitHub.PullRequests.List(
-		context.Background(),
-		owner, repo,
-		&gh.PullRequestListOptions{})
+	prs, err := l.GitHubFacade.ListPRs(owner, repo)
 
 	if err != nil {
 		log.Printf("Unable to list pull requests in %s/%s: %+v", owner, repo, err)

@@ -1,49 +1,71 @@
 diff --git a/README.md b/README.md
-index d8827a8..3ef9a3c 100644
+index fd6712e..6bc9d15 100644
 --- a/README.md
 +++ b/README.md
-@@ -30,7 +30,7 @@ jobs:
-         GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
- ```
-
--Then add a new file `./github/labeler.yml` with the configuration as
-+Then add a new file `.github/labeler.yml` with the configuration as
- described below in the `Configuration` section.
-
- This action will avoid failing in all cases, so if you're experiencing
-@@ -44,7 +44,7 @@ Typical errors are:
-
- ## Configuration
-
--Configuration can be stored at `./github/labeler.yml` as a plain list of
-+Configuration can be stored at `.github/labeler.yml` as a plain list of
+@@ -1,4 +1,4 @@
+-# Label manager for PRs and issues based on configurable conditions
++# Label manager for PRs and issues based on configurable conditions!!
+ 
+ [![labeler release (latest SemVer)](https://img.shields.io/github/v/release/srvaroa/labeler?sort=semver)](https://github.com/srvaroa/labeler/releases)  
+ 
+@@ -53,7 +53,7 @@ on:
+ jobs:
+   build:
+ 
+-    runs-on: ubuntu-latest
++    runs-on: ubuntu-latest!!
+ 
+     steps:
+     - uses: srvaroa/labeler@master
+@@ -104,7 +104,7 @@ errors are:
+   permissions to label the main repository ([issue for
+   solving this](https://github.com/srvaroa/labeler/issues/3))
+ 
+-## Configuring matching rules
++## Configuring matching ruleA!!s
+ 
+ Configuration can be stored at `.github/labeler.yml` as a plain list of
  label matchers, which consist of a label and a set of conditions for
- each.  When *all* conditions for a label match, then the Action will set
- the given label.  When *any* condition for a label does not match, then
-@@ -58,7 +58,7 @@ Here is an example of a matcher for label "Example":
- <condition_name>: <condition_parameters>
- ```
-
--For example, this `./github/labeler.yml` contains a single matcher with
-+For example, this `.github/labeler.yml` contains a single matcher with
- a single condition:
-
+@@ -379,4 +379,4 @@ This condition is satisfied when the title matches on the given regex.
+ 
  ```yaml
-@@ -76,7 +76,7 @@ Each label may combine multiple conditions.  The action combines all
- conditions with an AND operation.  That is, the label will be applied if
- *all* conditions are satisfied, removed otherwise.
-
--For example, given this `./github/labeler.yml`:
-+For example, given this `.github/labeler.yml`:
-
- ```yaml
- version: 1
-@@ -151,7 +151,7 @@ the PR is within given thresholds.
-  The number of changed lines is calculated as the sum of all `additions +
-  deletions` in the PR.
-
- -For example, given this `./github/labeler.yml`:
- +For example, given this `.github/labeler.yml`:
-
-  ```yaml
-  - label: "S"
+ title: "^WIP:.*"
+-```
++```!!
+diff --git a/dependabot.yml b/dependabot.yml
+deleted file mode 100644
+index f17f51b..0000000
+--- a/dependabot.yml
++++ /dev/null
+@@ -1,12 +0,0 @@
+-# To get started with Dependabot version updates, you'll need to specify which
+-# package ecosystems to update and where the package manifests are located.
+-# Please see the documentation for all configuration options:
+-# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+-
+-version: 2
+-updates:
+-  - package-ecosystem: "" # See documentation for possible values
+-    directory: "/" # Location of package manifests
+-    schedule:
+-      interval: "weekly"
+-
+diff --git a/pkg/condition_title.go b/pkg/condition_title.go
+index 79886f4..2fa4ee1 100644
+--- a/pkg/condition_title.go
++++ b/pkg/condition_title.go
+@@ -18,6 +18,7 @@ func TitleCondition() Condition {
+ 			if len(matcher.Title) <= 0 {
+ 				return false, fmt.Errorf("title is not set in config")
+ 			}
++			log.Printf("A change")
+ 			log.Printf("Matching `%s` against: `%s`", matcher.Title, target.Title)
+ 			isMatched, _ := regexp.Match(matcher.Title, []byte(target.Title))
+ 			return isMatched, nil
+diff --git a/new_file b/new_file
+new file mode 100644
+index 0000000..ce01362
+--- /dev/null
++++ b/new_file
+@@ -0,0 +1 @@
++hello

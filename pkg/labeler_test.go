@@ -295,6 +295,30 @@ func TestHandleEvent(t *testing.T) {
 		},
 		{
 			event:    "pull_request",
+			payloads: []string{"big_pr"},
+			name:     "Test the size_above rule applying file exclusions",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label: "L",
+						Size: &SizeConfig{
+							ExcludeFiles: []string{"README.md", "new_file", "dependabot.yml"},
+							// our test file has a diff in four files,
+							// including added/removed which have a
+							// slightly trickier diff.  Adding any of
+							// these will get us above 2 lines and fail
+							// the test.
+							Below: "2",
+						},
+					},
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{"L"},
+		},
+		{
+			event:    "pull_request",
 			payloads: []string{"small_pr"},
 			name:     "Test the branch rule (matching)",
 			config: LabelerConfigV1{
@@ -725,6 +749,17 @@ func NewTestLabeler(t *testing.T, tc TestCase) Labeler {
 				tc.name, tc.expectedLabels, labels)
 		},
 		Client: &FakeHttpClient{},
+		GitHubFacade: &GitHubFacade{
+			GetRawDiff: func(owner, repo string, prNumber int) (string, error) {
+				file, err := os.Open("../test_data/diff_response")
+				if err != nil {
+					return "", err
+				}
+
+				data, err := ioutil.ReadAll(file)
+				return string(data), nil
+			},
+		},
 	}
 }
 

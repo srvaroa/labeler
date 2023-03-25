@@ -368,6 +368,20 @@ reported by the [GitHub API](https://developer.github.com/v3/pulls).
 |Second example|5|42|M|
 |Third example|68|148|L|
 
+You can exclude some files so that their changes are not taken into
+account for the overall count. This can be useful for `yarn.lock`,
+`go.sum` and such. Use `exclude-files`:
+
+``yaml`
+- label: "L"
+    size:
+        exclude-files: ["yarn.lock"]
+        above: 100
+``` 
+
+This condition will apply the `L` label if the diff is above 100 lines,
+but NOT taking into account changes in `yarn.lock`.
+
 **NOTICE** the old format for specifying size properties (`size-above`
 and `size-below`) has been deprecated. The action will continue
 supporting old configs for now, but users are encouraged to migrate to
