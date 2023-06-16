@@ -15,7 +15,11 @@ import (
 
 func main() {
 
-	gh := getGithubClient()
+	gh, err := getGithubClient()
+	if err != nil {
+		log.Printf("Failed to retrieve a GitHub client: %+v", err)
+		return
+	}
 	eventPayload := getEventPayload()
 	eventName := os.Getenv("GITHUB_EVENT_NAME")
 
@@ -128,14 +132,23 @@ func getLabelerConfigV0(configRaw *[]byte) (labeler.LabelerConfigV1, error) {
 	}, err
 }
 
-func getGithubClient() *github.Client {
+func getGithubClient() (*github.Client, error) {
 	ghToken := os.Getenv("GITHUB_TOKEN")
+	ghApiHost := os.Getenv("GITHUB_API_HOST")
 	ctx := context.Background()
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: ghToken},
 	)
-	tc := oauth2.NewClient(ctx, ts)
-	return github.NewClient(tc)
+
+	if len(ghApiHost) == 0 {
+		log.Printf("Connecting to GitHub.com")
+		tc := oauth2.NewClient(ctx, ts)
+		return github.NewClient(tc), nil
+	} else {
+		log.Printf("Connecting to enterprise server at: %s", ghApiHost)
+		tc := oauth2.NewClient(ctx, ts)
+		return github.NewEnterpriseClient(ghApiHost, ghApiHost, tc)
+	}
 }
 
 func getEventPayload() *[]byte {
