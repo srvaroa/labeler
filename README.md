@@ -38,10 +38,13 @@ configuration files to benefit from newer features. Please follow our
 [releases](https://github.com/srvaroa/labeler/releases) page to stay up
 to date.
 
-### GitHub Enterprise
+### GitHub Enterprise support
 
 Add `GITHUB_API_HOST` to your env variables, it should be in the form
 `http(s)://[hostname]/`
+
+Please consider [https://github.com/sponsors/srvaroa](sponsoring the
+project) if you're using Labeler in your organization!
 
 ### How to trigger action
 
