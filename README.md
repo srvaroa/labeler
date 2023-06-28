@@ -43,8 +43,7 @@ to date.
 Add `GITHUB_API_HOST` to your env variables, it should be in the form
 `http(s)://[hostname]/`
 
-Please consider [https://github.com/sponsors/srvaroa](sponsoring the
-project) if you're using Labeler in your organization!
+Please consider [sponsoring the project](https://github.com/sponsors/srvaroa) if you're using Labeler in your organization!
 
 ### How to trigger action
 
