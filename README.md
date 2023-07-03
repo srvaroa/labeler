@@ -379,7 +379,7 @@ You can exclude some files so that their changes are not taken into
 account for the overall count. This can be useful for `yarn.lock`,
 `go.sum` and such. Use `exclude-files`:
 
-``yaml`
+```yaml
 - label: "L"
     size:
         exclude-files: ["yarn.lock"]
