@@ -103,13 +103,8 @@ labels:
 ## Troubleshooting
 
 This action will avoid failing in all cases, so if you're experiencing
-unexpected behaviour it's worth looking at execution logs.  Typical
-errors are:
-
-* The configuration file is non existent, or invalid yaml.
-* Running the action from a fork, as the `GITHUB_TOKEN` has not enough
-  permissions to label the main repository ([issue for
-  solving this](https://github.com/srvaroa/labeler/issues/3))
+unexpected behaviour it's worth looking at execution logs. Typical
+errors are related to non-existing configuration file or invalid yaml.
 
 ## Configuring matching rules
 
