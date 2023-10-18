@@ -9,12 +9,12 @@ configurable matching rules. Available conditions:
 
 * [Author can merge](#author-can-merge): label based on whether the author can merge the PR
 * [Authors](#authors): label based on the PR/Issue authors
-* [Base branch](#base-branch): label based on the PR's base branch
+* [Base branch](#base-branch): label based on the PR's base branch name
 * [Body](#body): label based on the PR/Issue body
-* [Branch](#branch): label based on the PR branch
+* [Branch](#branch): label based on the PR's branch name
 * [Draft](#draft): label based on whether the branch is mergeable
 * [Files](#files): label based on the files modified in the PR
-* [Mergeable](#mergeable): label based o whether the PR is mergeable
+* [Mergeable](#mergeable): label based on whether the PR is mergeable
 * [Size](#size): label based on the PR size
 * [Title](#title): label based on the PR/Issue title
 
