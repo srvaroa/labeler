@@ -28,9 +28,9 @@ it useful, you can do this through [GitHub Sponsors](https://github.com/sponsors
 
 ## Installing
 
-The action is configured by adding a file `.github/labeler.yml`. The
-file contains matching rules expanded in the `Configuration` section
-below.
+The action is configured by adding a file `.github/labeler.yml` (which
+you can override). The file contains matching rules expanded in the
+`Configuration` section below.
 
 The action will strive to maintain backwards compatibility with older
 configuration versions. It is nevertheless encouraged to update your
@@ -99,6 +99,41 @@ labels:
 - label: "WIP"
   title: "^WIP:.*"
 ```
+
+### Advanced action settings
+
+Please refer to the (action.yaml)[action.yaml] file in the repository
+for the available inputs to the action. Below is an example using all of
+them:
+
+```yaml
+name: Label PRs
+
+on:
+- pull_request
+- issues
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: srvaroa/labeler@master
+      with:
+        config_path: .github/labeler.yml
+        use_local_config: false
+      env:
+        GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+```
+
+Use `config_path` to provide an alternative path for the configuration
+file for the action. The default is `.github/labeler.yaml`.
+
+Use `use_local_config` to chose where to read the config file from. By
+default, the action will read the file from the default branch of your
+repository. If you set `use_local_config` to `true`, then the action
+will read the config file from the local checkout.
 
 ## Troubleshooting
 
