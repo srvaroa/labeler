@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/go-yaml/yaml"
@@ -23,19 +24,43 @@ func main() {
 	eventPayload := getEventPayload()
 	eventName := os.Getenv("GITHUB_EVENT_NAME")
 
-	// TODO: rethink this.  Currently we'll take the config from the
-	// PR's branch, not from master.  My intuition is that one wants
-	// to see the rules that are set in the main branch (as those are
-	// vetted by the repo's owners).  It seems fairly common in GH
-	// actions to use this approach, and I will need to consider
-	// whatever branch is set as main in the repo settings, so leaving
-	// as this for now.
-	configRaw, err := getRepoFile(gh,
-		os.Getenv("GITHUB_REPOSITORY"),
-		os.Getenv("INPUT_CONFIG_PATH"),
-		os.Getenv("GITHUB_SHA"))
+	// Determine if the user wants to override the upstream config
+	// in the main branch with the local one in the checkout
+	useLocalConfig, err := strconv.ParseBool(os.Getenv("INPUT_USE_LOCAL_CONFIG"))
 	if err != nil {
-		return
+		useLocalConfig = false
+	}
+
+	configFile := os.Getenv("INPUT_CONFIG_PATH")
+
+	var configRaw *[]byte
+	if useLocalConfig {
+		log.Printf("Reading configuration from local file: %s", configFile)
+		contents, err := ioutil.ReadFile(configFile)
+		if err != nil {
+			log.Printf("Error reading configuration from local file: %s", err)
+			return
+		}
+		configRaw = &contents
+	} else {
+		log.Printf("Reading configuration file from the repository default branch: %s", configFile)
+		// TODO: rethink this.  Currently we'll take the config from the
+		// PR's branch, not from master.  My intuition is that one wants
+		// to see the rules that are set in the main branch (as those are
+		// vetted by the repo's owners).  It seems fairly common in GH
+		// actions to use this approach, and I will need to consider
+		// whatever branch is set as main in the repo settings, so leaving
+		// as this for now.
+		configRaw, err = getRepoFile(gh,
+			os.Getenv("GITHUB_REPOSITORY"),
+			configFile,
+			os.Getenv("GITHUB_SHA"))
+
+		if err != nil {
+			log.Printf("Error reading configuration from default branch: %s", err)
+			return
+		}
+
 	}
 
 	config, err := getLabelerConfigV1(configRaw)

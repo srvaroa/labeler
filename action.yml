@@ -5,6 +5,9 @@ inputs:
   config_path:
     description: 'Path for labeling rules'
     default: '.github/labeler.yml'
+  use_local_config:
+    description: 'By default the action will use the configuration file set in the default branch of the repository. When set to true, the action will instead use the configuration found in the local checkout of the repository.'
+    default: 'false'
 runs:
   using: 'docker'
   image: 'Dockerfile'
