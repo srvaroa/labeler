@@ -1,10 +1,10 @@
-name: Label PRs
+name: Label PRs with published action as canary
 
 on:
   pull_request:
 
 jobs:
-  build:
+  apply_labels:
 
     runs-on: ubuntu-latest
 
