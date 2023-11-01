@@ -30,6 +30,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           INPUT_CONFIG_PATH: ./.github/labeler.yml
+          INPUT_FAIL_ON_ERROR: true
         run: ./action
 
       - name: Check that the docker image builds
