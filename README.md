@@ -137,9 +137,20 @@ will read the config file from the local checkout.
 
 ## Troubleshooting
 
-This action will avoid failing in all cases, so if you're experiencing
-unexpected behaviour it's worth looking at execution logs. Typical
-errors are related to non-existing configuration file or invalid yaml.
+To avoid blocking CI pipelines, the action will never return an error
+code and just log information about the problem. Typical errors are
+related to non-existing configuration file or invalid yaml.
+
+If you wish to make the action fail the pipeline, you can override this
+behaviour thus:
+
+    steps:
+    - uses: srvaroa/labeler@master
+      with:
+        fail_on_error: true
+
+When `fail_on_error` is enabled, any failure inside the action will
+exit the action process with an error code.
 
 ## Configuring matching rules
 

@@ -16,10 +16,20 @@ import (
 
 func main() {
 
+	// Determine if we want the action to fail on error, or be silent to
+	// prevent blocking Ci pipelines
+	failCode := 0
+	failOnError, err := strconv.ParseBool(os.Getenv("INPUT_FAIL_ON_ERROR"))
+	if err != nil {
+		log.Printf("INPUT_FAIL_ON_ERROR not set, defaulting to silent failures")
+	} else if failOnError {
+		log.Printf("INPUT_FAIL_ON_ERROR enabled, the action will exit with an error code on failure")
+		failCode = 1
+	}
 	gh, err := getGithubClient()
 	if err != nil {
 		log.Printf("Failed to retrieve a GitHub client: %+v", err)
-		return
+		os.Exit(failCode)
 	}
 	eventPayload := getEventPayload()
 	eventName := os.Getenv("GITHUB_EVENT_NAME")
@@ -39,7 +49,7 @@ func main() {
 		contents, err := ioutil.ReadFile(configFile)
 		if err != nil {
 			log.Printf("Error reading configuration from local file: %s", err)
-			return
+			os.Exit(failCode)
 		}
 		configRaw = &contents
 	} else {
@@ -58,14 +68,15 @@ func main() {
 
 		if err != nil {
 			log.Printf("Error reading configuration from default branch: %s", err)
-			return
+			os.Exit(failCode)
 		}
 
 	}
 
 	config, err := getLabelerConfigV1(configRaw)
 	if err != nil {
-		return
+		log.Printf("Unable to parse configuration")
+		os.Exit(failCode)
 	}
 
 	log.Printf("Re-evaluating labels on %s@%s",
