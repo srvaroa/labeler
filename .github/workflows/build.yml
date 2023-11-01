@@ -26,5 +26,11 @@ jobs:
       - name: Test
         run: make test
 
-      - name: Dockerize
-        run: docker build .
+      - name: Run local action
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_CONFIG_PATH: ./.github/labeler.yml
+        run: ./action
+
+      - name: Check that the docker image builds
+        run: docker build . -t local
