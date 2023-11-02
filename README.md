@@ -1,6 +1,6 @@
 # Label manager for PRs and issues based on configurable conditions
 
-[![labeler release (latest SemVer)](https://img.shields.io/github/v/release/srvaroa/labeler?sort=semver)](https://github.com/srvaroa/labeler/releases)  
+[![labeler release (latest SemVer)](https://img.shields.io/github/v/release/srvaroa/labeler?sort=semver)](https://github.com/srvaroa/labeler/releases)  [![sponsor the project!](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/srvaroa)
 
 Implements an all-in-one [GitHub
 Action](https://help.github.com/en/categories/automating-your-workflow-with-github-actions)
