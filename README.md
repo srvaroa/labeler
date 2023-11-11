@@ -70,7 +70,9 @@ jobs:
 
 Using `@master` will run the latest available release. Feel free to pin
 this to a specific version from the [releases
-page](https://github.com/srvaroa/labeler/releases).
+page](https://github.com/srvaroa/labeler/releases). We also maintain a
+floating tag on the major `v1`. This gets updated whenever a new
+minor/patch v1.x.y version is released.
 
 Use the [`on`
 clause](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows)
