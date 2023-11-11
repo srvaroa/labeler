@@ -118,7 +118,12 @@ jobs:
 
     runs-on: ubuntu-latest
 
+
     steps:
+
+    - name: Checkout your code
+      uses: actions/checkout@v3
+
     - uses: srvaroa/labeler@master
       with:
         config_path: .github/labeler.yml
@@ -133,7 +138,8 @@ file for the action. The default is `.github/labeler.yaml`.
 Use `use_local_config` to chose where to read the config file from. By
 default, the action will read the file from the default branch of your
 repository. If you set `use_local_config` to `true`, then the action
-will read the config file from the local checkout.
+will read the config file from the local checkout. Note that you may
+need to checkout your branch before the action runs!
 
 ## Troubleshooting
 
