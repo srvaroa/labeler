@@ -188,7 +188,7 @@ func (l *Labeler) ExecuteOn(target *Target) error {
 			intentions[label] = isDesired
 		}
 	}
-	log.Printf("Final label updates: `%v`", labelUpdates)
+	log.Printf("Final labels: `%v`", intentions)
 
 	// filter out only labels that must be set
 	desiredLabels := []string{}
