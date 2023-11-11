@@ -294,11 +294,16 @@ With this config, the behaviour changes:
 ## Conditions
 
 Below are the conditions currently supported in label matchers, in 
-alphabetical order. Note that some conditions are only applicable to
-pull requests.
+alphabetical order. Some important considerations:
 
-All conditions evaluate only when they are explicitly added in
-configuration (that is, there are no default values).
+* Conditions evaluate only when they are explicitly added in
+  configuration. There are no defaults.
+* Some conditions are only applicable to pull requests.
+* All conditions based on regex rely on [Go's `regexp`
+  package](https://pkg.go.dev/regexp), which accepts the syntax accepted
+  by RE2 and described at [](https://golang.org/s/re2syntax). You can
+  use tools like [](https://regex101.com/?flavor=golang) to verify your
+  conditions.
 
 ### Author can merge (PRs) <a name="author-can-merge" />
 
