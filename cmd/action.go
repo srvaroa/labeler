@@ -17,7 +17,7 @@ import (
 func main() {
 
 	// Determine if we want the action to fail on error, or be silent to
-	// prevent blocking Ci pipelines
+	// prevent blocking CI pipelines
 	failCode := 0
 	failOnError, err := strconv.ParseBool(os.Getenv("INPUT_FAIL_ON_ERROR"))
 	if err != nil {
