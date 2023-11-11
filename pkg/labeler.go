@@ -170,10 +170,10 @@ func (l *Labeler) ExecuteOn(target *Target) error {
 	}
 
 	log.Printf("Current labels: `%v`", intentions)
+	log.Printf("Preliminary label updates: `%v`", labelUpdates)
 	if config.AppendOnly {
 		log.Printf("AppendOnly is active, removals are forbidden")
 	}
-	log.Printf("Preliminary label updates: `%v`", labelUpdates)
 	// update, adding new ones and unflagging those to remove if
 	// necessary
 	for label, isDesired := range labelUpdates.set {
@@ -188,6 +188,7 @@ func (l *Labeler) ExecuteOn(target *Target) error {
 			intentions[label] = isDesired
 		}
 	}
+	log.Printf("Final label updates: `%v`", labelUpdates)
 
 	// filter out only labels that must be set
 	desiredLabels := []string{}
