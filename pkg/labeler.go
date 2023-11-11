@@ -46,7 +46,7 @@ type LabelerConfigV1 struct {
 	// When set to true, we will only add labels when they match a rule
 	// but it will NOT remove labels that were previously set and stop
 	// matching a rule
-	AppendOnly bool
+	AppendOnly bool `yaml:"appendOnly"`
 	Labels     []LabelMatcher
 }
 
@@ -169,6 +169,11 @@ func (l *Labeler) ExecuteOn(target *Target) error {
 		intentions[label] = true
 	}
 
+	log.Printf("Current labels: `%v`", intentions)
+	if config.AppendOnly {
+		log.Printf("AppendOnly is active, removals are forbidden")
+	}
+	log.Printf("Preliminary label updates: `%v`", labelUpdates)
 	// update, adding new ones and unflagging those to remove if
 	// necessary
 	for label, isDesired := range labelUpdates.set {
