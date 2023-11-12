@@ -12,7 +12,7 @@ configurable matching rules. Available conditions:
 * [Base branch](#base-branch): label based on the PR's base branch name
 * [Body](#body): label based on the PR/Issue body
 * [Branch](#branch): label based on the PR's branch name
-* [Draft](#draft): label based on whether the branch is mergeable
+* [Draft](#draft): label based on whether the PR is a draft
 * [Files](#files): label based on the files modified in the PR
 * [Mergeable](#mergeable): label based on whether the PR is mergeable
 * [Size](#size): label based on the PR size
