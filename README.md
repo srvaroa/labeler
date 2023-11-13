@@ -104,7 +104,7 @@ labels:
 
 ### Advanced action settings
 
-Please refer to the (action.yaml)[action.yaml] file in the repository
+Please refer to the [action.yaml](action.yaml) file in the repository
 for the available inputs to the action. Below is an example using all of
 them:
 
@@ -130,6 +130,7 @@ jobs:
       with:
         config_path: .github/labeler.yml
         use_local_config: false
+        fail_on_error: false
       env:
         GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 ```
@@ -143,22 +144,15 @@ repository. If you set `use_local_config` to `true`, then the action
 will read the config file from the local checkout. Note that you may
 need to checkout your branch before the action runs!
 
+Use `fail_on_error` to decide whether an error in the action execution
+should trigger a failure of the workflow. By default it's disabled to
+prevent the action from disrupting CI pipelines.
+
 ## Troubleshooting
 
 To avoid blocking CI pipelines, the action will never return an error
 code and just log information about the problem. Typical errors are
 related to non-existing configuration file or invalid yaml.
-
-If you wish to make the action fail the pipeline, you can override this
-behaviour thus:
-
-    steps:
-    - uses: srvaroa/labeler@master
-      with:
-        fail_on_error: true
-
-When `fail_on_error` is enabled, any failure inside the action will
-exit the action process with an error code.
 
 ## Configuring matching rules
 
@@ -303,9 +297,9 @@ alphabetical order. Some important considerations:
 * Some conditions are only applicable to pull requests.
 * All conditions based on regex rely on [Go's `regexp`
   package](https://pkg.go.dev/regexp), which accepts the syntax accepted
-  by RE2 and described at [](https://golang.org/s/re2syntax). You can
-  use tools like [](https://regex101.com/?flavor=golang) to verify your
-  conditions.
+  by RE2 and described at [golang.org](https://golang.org/s/re2syntax).
+  You can use tools like [regex101.com](https://regex101.com/?flavor=golang)
+  to verify your conditions.
 
 ### Author can merge (PRs) <a name="author-can-merge" />
 
