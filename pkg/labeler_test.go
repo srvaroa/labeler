@@ -172,7 +172,38 @@ func TestHandleEvent(t *testing.T) {
 			initialLabels:  []string{},
 			expectedLabels: []string{"NotADraft"},
 		},
-
+		{
+			event:    "pull_request",
+			payloads: []string{"create_pr"},
+			name:     "Age of a PR in the future",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label: "ThisIsOld",
+						Age:   "100000000d",
+					},
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{},
+		},
+		{
+			event:    "pull_request",
+			payloads: []string{"create_pr"},
+			name:     "Age of a PR in the past",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label: "ThisIsOld",
+						Age:   "10d",
+					},
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{"ThisIsOld"},
+		},
 		{
 			event:    "pull_request",
 			payloads: []string{"create_draft_pr"},
