@@ -8,6 +8,6 @@ LABEL "com.github.actions.name"="Condition-based Pull Request labeller" \
           "repository"="https://github.com/srvaroa/labeler"
 
 WORKDIR /
-ARG ASSET_URL=https://github.com/srvaroa/labeler/releases/download/v1.8.0/action.tar.gz
-RUN wget -q -O- $ASSET_URL | tar xzvf -
+ARG VERSION=v1.8.0
+RUN wget -q -O- https://github.com/srvaroa/labeler/releases/download/${VERSION}/action.tar.gz | tar xzvf -
 ENTRYPOINT ["/action"]

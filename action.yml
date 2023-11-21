@@ -11,9 +11,14 @@ inputs:
   fail_on_error:
     default: 'false'
     description: 'By default the action will never fail when an error is found during the evaluation of the labels. This is done in order to avoid disrupting CI pipelines with non-critical tasks. To override this behaviour, set this property to `true` so that any error in the evaluation of labels causes a failure of the workflow.'
+  version:
+    default: 'v1.8.0'
+    description: "By default the action will run with the latest published version, use this property to pin to a specific release (e.g. v1.8.0)"
 runs:
   using: 'docker'
   image: 'Dockerfile'
+  args:
+    - ${{ inputs.version }}  
 branding:
   icon: award
   color: blue
