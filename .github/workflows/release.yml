@@ -1,8 +1,11 @@
 name: Create Release Binary
 
 on: 
-  release:
-    types: [created, edited]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Tag to publish'
+        required: true
 
 jobs:
   release:
@@ -18,3 +21,4 @@ jobs:
         overwrite: true
         binary_name: action
         asset_name: action
+        release_tag: ${{ inputs.release_tag }}
