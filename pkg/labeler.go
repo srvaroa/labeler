@@ -14,6 +14,7 @@ type SizeConfig struct {
 }
 
 type LabelMatcher struct {
+	Age            string
 	AuthorCanMerge string `yaml:"author-can-merge"`
 	Authors        []string
 	BaseBranch     string `yaml:"base-branch"`
@@ -209,6 +210,7 @@ func (l *Labeler) findMatches(target *Target, config *LabelerConfigV1) (LabelUpd
 		set: map[string]bool{},
 	}
 	conditions := []Condition{
+		AgeCondition(l),
 		AuthorCondition(),
 		AuthorCanMergeCondition(),
 		BaseBranchCondition(),

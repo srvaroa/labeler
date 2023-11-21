@@ -7,6 +7,7 @@ Action](https://help.github.com/en/categories/automating-your-workflow-with-gith
 that can manage multiple labels for both Pull Requests and Issues using
 configurable matching rules. Available conditions:
 
+* [Age](#age): label based on the age of a PR or Issue.
 * [Author can merge](#author-can-merge): label based on whether the author can merge the PR
 * [Authors](#authors): label based on the PR/Issue authors
 * [Base branch](#base-branch): label based on the PR's base branch name
@@ -87,7 +88,7 @@ to control when to run it.
 
 You may combine multiple event triggers.
 
-A final option is to trigger the action periodically using the
+<a name="schedule" />A final option is to trigger the action periodically using the
 [`schedule`](https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule)
 trigger. For backwards compatibility reasons this will examine all
 active pull requests and update their labels. If you wish to examine
@@ -300,6 +301,30 @@ alphabetical order. Some important considerations:
   by RE2 and described at [golang.org](https://golang.org/s/re2syntax).
   You can use tools like [regex101.com](https://regex101.com/?flavor=golang)
   to verify your conditions.
+
+### Age (PRs and Issues) <a name="age" />
+
+This condition is satisfied when the age of the PR or Issue are larger than
+the given one. The age is calculated from the creation date.
+
+This condition is best used when with a <a href="#schedule">schedule trigger</a>.
+
+Example:
+
+```yaml
+age: 1d
+```
+
+The syntax for values is based on a number, followed by a suffix:
+
+* s: seconds
+* m: minutes
+* h: hours
+* d: days
+* w: weeks
+* y: years
+
+For example, `2d` means 2 days, `4w` means 4 weeks, and so on.
 
 ### Author can merge (PRs) <a name="author-can-merge" />
 
