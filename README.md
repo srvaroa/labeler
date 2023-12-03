@@ -105,7 +105,7 @@ labels:
 
 ### Advanced action settings
 
-Please refer to the [action.yaml](action.yaml) file in the repository
+Please refer to the [action.yml](action.yml) file in the repository
 for the available inputs to the action. Below is an example using all of
 them:
 
@@ -137,7 +137,7 @@ jobs:
 ```
 
 Use `config_path` to provide an alternative path for the configuration
-file for the action. The default is `.github/labeler.yaml`.
+file for the action. The default is `.github/labeler.yml`.
 
 Use `use_local_config` to chose where to read the config file from. By
 default, the action will read the file from the default branch of your
