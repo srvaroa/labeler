@@ -2,6 +2,7 @@ package labeler
 
 import (
 	"fmt"
+	"strconv"
 )
 
 func AuthorCanMergeCondition() Condition {
@@ -10,16 +11,31 @@ func AuthorCanMergeCondition() Condition {
 			return "Author can merge"
 		},
 		CanEvaluate: func(target *Target) bool {
-			return true
+			return target.ghPR != nil
 		},
 		Evaluate: func(target *Target, matcher LabelMatcher) (bool, error) {
-			if len(matcher.AuthorCanMerge) <= 0 {
-				return false, fmt.Errorf("AuthorCanMerge not set in repository")
+			expected, err := strconv.ParseBool(matcher.AuthorCanMerge)
+			if err != nil {
+				return false, fmt.Errorf("author-can-merge doesn't have a valid value in config")
 			}
+
 			ghRepo := target.ghPR.GetAuthorAssociation()
 			canMerge := ghRepo == "OWNER"
-			fmt.Printf("User: %s can merge? %t\n", target.Author, canMerge)
-			return canMerge, nil
+
+			if expected && canMerge {
+				fmt.Printf("User: %s can merge %t, condition matched\n",
+					target.Author, canMerge)
+				return true, nil
+			}
+
+			if !expected && !canMerge {
+				fmt.Printf("User: %s can not merge %t, condition matched\n",
+					target.Author, canMerge)
+				return true, nil
+			}
+
+			fmt.Printf("Condition not matched")
+			return false, nil
 		},
 	}
 }
