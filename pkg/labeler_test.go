@@ -592,13 +592,63 @@ func TestHandleEvent(t *testing.T) {
 		{
 			event:    "pull_request",
 			payloads: []string{"create_pr_non_owner"},
-			name:     "Add a label when the author cannot merge",
+			name:     "Remove a label when the author cannot merge",
 			config: LabelerConfigV1{
 				Version: 1,
 				Labels: []LabelMatcher{
 					{
 						Label:          "Test",
 						AuthorCanMerge: "True",
+					},
+				},
+			},
+			initialLabels:  []string{"Test"},
+			expectedLabels: []string{},
+		},
+		{
+			event:    "pull_request",
+			payloads: []string{"create_pr_non_owner"},
+			name:     "Add a label when the author cannot merge",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label:          "Test",
+						AuthorCanMerge: "False",
+					},
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{"Test"},
+		},
+		{
+			event:    "pull_request",
+			payloads: []string{"create_pr"},
+			name:     "Remove label when the author can merge",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label:          "Test",
+						AuthorCanMerge: "False",
+					},
+				},
+			},
+			initialLabels:  []string{"Test"},
+			expectedLabels: []string{},
+		},
+		{
+			event:    "pull_request",
+			payloads: []string{"create_pr"},
+			name:     "Negate when the author can merge",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label:          "Test",
+						Draft:          "False", // payload is not a draft
+						AuthorCanMerge: "True",  // payload author is the owner
+						Negate:         true,    // both matchers are true, result should be false
 					},
 				},
 			},
