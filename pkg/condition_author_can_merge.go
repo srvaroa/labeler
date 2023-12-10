@@ -19,18 +19,17 @@ func AuthorCanMergeCondition() Condition {
 				return false, fmt.Errorf("author-can-merge doesn't have a valid value in config")
 			}
 
-			ghRepo := target.ghPR.GetAuthorAssociation()
-			canMerge := ghRepo == "OWNER"
+			authorAssoc := target.ghPR.GetAuthorAssociation()
+			canMerge := authorAssoc == "MEMBER" || authorAssoc == "OWNER" || authorAssoc == "COLLABORATOR"
 
 			if expected && canMerge {
-				fmt.Printf("User: %s can merge %t, condition matched\n",
-					target.Author, canMerge)
+				fmt.Printf("User: %s can merge, condition matched\n", target.Author)
 				return true, nil
 			}
 
 			if !expected && !canMerge {
-				fmt.Printf("User: %s can not merge %t, condition matched\n",
-					target.Author, canMerge)
+				fmt.Printf("User: %s can not merge, condition matched\n",
+					target.Author)
 				return true, nil
 			}
 

@@ -264,10 +264,6 @@ func (l *Labeler) findMatches(target *Target, config *LabelerConfigV1) (LabelUpd
 			} else { // First condition evaluated for this label
 				labelUpdates.set[label] = isMatched
 			}
-
-			if isMatched {
-				continue
-			}
 		}
 
 		if matcher.Negate {
