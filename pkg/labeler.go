@@ -151,9 +151,14 @@ func (l *Labeler) ExecuteOn(target *Target) error {
 	log.Printf("Matching labels on target %+v", target)
 
 	config, err := l.FetchRepoConfig()
+	if err != nil {
+		log.Printf("Unable to load configuration %+v", err)
+		return err
+	}
 
 	labelUpdates, err := l.findMatches(target, config)
 	if err != nil {
+		log.Printf("Unable to find matches %+v", err)
 		return err
 	}
 
@@ -225,6 +230,7 @@ func (l *Labeler) findMatches(target *Target, config *LabelerConfigV1) (LabelUpd
 
 	for _, matcher := range config.Labels {
 		label := matcher.Label
+		log.Printf("Evaluating label %s", label)
 
 		if labelUpdates.set[label] {
 			// This label was already matched in another matcher
