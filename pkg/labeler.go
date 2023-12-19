@@ -35,6 +35,7 @@ type LabelMatcher struct {
 	SizeBelow string `yaml:"size-below"`
 	// size-legacy
 	Title string
+	Type  string
 }
 
 type LabelerConfigV0 map[string]LabelMatcher
@@ -226,6 +227,7 @@ func (l *Labeler) findMatches(target *Target, config *LabelerConfigV1) (LabelUpd
 		IsMergeableCondition(),
 		SizeCondition(l),
 		TitleCondition(),
+		TypeCondition(),
 	}
 
 	for _, matcher := range config.Labels {

@@ -7,3 +7,7 @@ labels:
     files: 
     - "cmd\\/.*.go"
     - "pkg\\/.*.go"
+  - label: "TestTypePullRequest"
+    type: "pull_request"
+  - label: "TestTypeIssue"
+    type: "issue"

@@ -18,6 +18,7 @@ configurable matching rules. Available conditions:
 * [Mergeable](#mergeable): label based on whether the PR is mergeable
 * [Size](#size): label based on the PR size
 * [Title](#title): label based on the PR/Issue title
+* [Type](#type): label based on record type (PR or Issue)
 
 ## Sponsors
 
@@ -480,3 +481,34 @@ This condition is satisfied when the title matches on the given regex.
 ```yaml
 title: "^WIP:.*"
 ```
+
+### Type <a name="type" />
+
+By setting the type attribute in your label configuration, you can specify whether a rule applies exclusively to Pull
+Requests (PRs) or Issues. This allows for more precise label management based on the type of GitHub record. The
+type condition accepts one of two values:
+
+- `pull_request`
+- `issue`
+
+This functionality increases the adaptability of this GitHub Action, allowing users to create more tailored labeling
+strategies that differentiate between PRs and Issues or apply universally to both.
+
+#### Pull-Request Only:
+
+```yaml
+- label: "needs review"
+  type: "pull_request"
+  name: ".*bug.*"
+```
+This rule applies the label "needs review" to Pull Requests with "bug" in the title.
+
+### Issue Only:
+
+```yaml
+- label: "needs triage"
+  type: "issue"
+  name: ".*bug.*"
+```
+
+This rule applies the label "needs triage" to Issues with "bug" in the title.
