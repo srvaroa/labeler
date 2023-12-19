@@ -123,8 +123,8 @@ func TestGetLabelerConfigV1(t *testing.T) {
 			{
 				Label: "TestFileMatch",
 				Files: []string{
-					"cmd/.*.go",
-					"pkg/.*.go",
+					"cmd\\/.*.go",
+					"pkg\\/.*.go",
 				},
 			},
 			{
@@ -262,7 +262,7 @@ func TestGetLabelerConfig2V1(t *testing.T) {
 		},
 		"TestFileMatch": {
 			Label: "TestFileMatch",
-			Files: []string{"cmd/.*.go", "pkg/.*.go"},
+			Files: []string{"cmd\\/.*.go", "pkg\\/.*.go"},
 		},
 	}
 

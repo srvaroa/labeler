@@ -15,8 +15,8 @@ labels:
     size-above: 100
   - label: "TestFileMatch"
     files: 
-    - "cmd/.*.go"
-    - "pkg/.*.go"
+    - "cmd\\/.*.go"
+    - "pkg\\/.*.go"
   - label: "Test"
     authors: 
       - "Test1"

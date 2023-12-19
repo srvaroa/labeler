@@ -5,5 +5,5 @@ labels:
     title: ".*"
   - label: "TestFileMatch"
     files: 
-    - "cmd/.*.go"
-    - "pkg/.*.go"
+    - "cmd\\/.*.go"
+    - "pkg\\/.*.go"
