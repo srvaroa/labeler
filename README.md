@@ -503,7 +503,7 @@ strategies that differentiate between PRs and Issues or apply universally to bot
 ```
 This rule applies the label "needs review" to Pull Requests with "bug" in the title.
 
-### Issue Only:
+#### Issue Only:
 
 ```yaml
 - label: "needs triage"
