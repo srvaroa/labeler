@@ -5,10 +5,9 @@ labels:
     title: ".*"
   - label: "TestFileMatch"
     files: 
-     - "cmd\\/.*.go"
-     - "pkg\\/.*.go"
+    - "cmd\\/.*.go"
+    - "pkg\\/.*.go"
   - label: "TestTypePullRequest"
     type: "pull_request"
   - label: "TestTypeIssue"
     type: "issue"
-    
