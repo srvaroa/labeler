@@ -264,6 +264,14 @@ func TestGetLabelerConfig2V1(t *testing.T) {
 			Label: "TestFileMatch",
 			Files: []string{"cmd/.*.go", "pkg/.*.go"},
 		},
+		"TestTypePullRequest": {
+			Label: "TestTypePullRequest",
+			Type:  "pull_request",
+		},
+		"TestTypeIssue": {
+			Label: "TestTypeIssue",
+			Type:  "issue",
+		},
 	}
 
 	if !cmp.Equal(len(expectMatchers), len(c.Labels)) {

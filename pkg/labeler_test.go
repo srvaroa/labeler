@@ -789,6 +789,70 @@ func TestHandleEvent(t *testing.T) {
 			initialLabels:  []string{"Test", "WIP"},
 			expectedLabels: []string{"Test", "WIP"},
 		},
+		{
+			event:    "issues",
+			payloads: []string{"issue_open"},
+			name:     "Add a label to issue when type matches (issues neq pull_request)",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label: "Test",
+						Type:  "pull_request",
+					},
+				},
+			},
+			initialLabels:  []string{"Meh"},
+			expectedLabels: []string{"Meh"},
+		},
+		{
+			event:    "pull_request",
+			payloads: []string{"create_pr"},
+			name:     "Add a label to pull request when type matches (pull_request neq issue)",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label: "Test",
+						Type:  "issue",
+					},
+				},
+			},
+			initialLabels:  []string{"Meh"},
+			expectedLabels: []string{"Meh"},
+		},
+		{
+			event:    "issues",
+			payloads: []string{"issue_open"},
+			name:     "Add a label to issue when type matches (issues eq issue)",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label: "Test",
+						Type:  "issue",
+					},
+				},
+			},
+			initialLabels:  []string{"Meh"},
+			expectedLabels: []string{"Meh", "Test"},
+		},
+		{
+			event:    "pull_request",
+			payloads: []string{"create_pr"},
+			name:     "Add a label to pull request when type matches (pull_request eq pull_request)",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label: "Test",
+						Type:  "pull_request",
+					},
+				},
+			},
+			initialLabels:  []string{"Meh"},
+			expectedLabels: []string{"Meh", "Test"},
+		},
 	}
 
 	for _, tc := range testCases {
