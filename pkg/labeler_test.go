@@ -334,7 +334,7 @@ func TestHandleEvent(t *testing.T) {
 					{
 						Label: "L",
 						Size: &SizeConfig{
-							ExcludeFiles: []string{"README.md", "new_file", "dependabot.yml"},
+							ExcludeFiles: []string{"README.md", "new_file", "dependabot.yml", "root/sub/test.md"},
 							// our test file has a diff in four files,
 							// including added/removed which have a
 							// slightly trickier diff.  Adding any of
@@ -472,6 +472,24 @@ func TestHandleEvent(t *testing.T) {
 						Label: "Files",
 						Files: []string{
 							"^.*.md",
+						},
+					},
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{"Files"},
+		},
+		{
+			event:    "pull_request",
+			payloads: []string{"diff_pr"},
+			name:     "Test escaping in the file condition",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label: "Files",
+						Files: []string{
+							"(.*?)\\/(sub|test)\\/.*",
 						},
 					},
 				},

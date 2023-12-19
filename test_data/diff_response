@@ -69,3 +69,10 @@ index 0000000..ce01362
 +++ b/new_file
 @@ -0,0 +1 @@
 +hello
+diff --git a/root/sub/test.md b/root/sub/test.md
+index 6c61a60..85aa975 100644
+--- a/root/sub/test.md
++++ b/root/sub/test.md
+@@ -1 +1 @@
+-# Test File
++# Test File !

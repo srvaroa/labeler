@@ -395,8 +395,14 @@ given regexs.
 
 ```yaml
 files: 
-- "cmd/.*_tests.go"
+- "cmd\\/.*_tests.go"
+- ".*\\/subfolder\\/.*\\.md"
 ```
+
+> **NOTICE** the double backslash (`\\`) in the example above. This GitHub Action is coded in Go (Golang), which means
+> you need to pay special attention to regular expressions (Regex). Special characters need to be escaped with double
+> backslashes. This is because the backslash in Go strings is an escape character and therefore must be escaped itself 
+> to appear as a literal in the regex.
 
 ### Mergeable status (PRs only) <a name="mergeable" />
 
