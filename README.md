@@ -16,7 +16,7 @@ configurable matching rules. Available conditions:
 * [Draft](#draft): label based on whether the PR is a draft
 * [Files](#files): label based on the files modified in the PR
 * [Mergeable](#mergeable): label based on whether the PR is mergeable
-* [Size](#size): label based on the PR size
+* [Size](#size): label based on the PR size, allowing file exclusions
 * [Title](#title): label based on the PR/Issue title
 * [Type](#type): label based on record type (PR or Issue)
 
