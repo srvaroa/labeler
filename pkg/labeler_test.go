@@ -334,7 +334,42 @@ func TestHandleEvent(t *testing.T) {
 					{
 						Label: "L",
 						Size: &SizeConfig{
-							ExcludeFiles: []string{"README.md", "new_file", "dependabot.yml", "root/sub/test.md"},
+							ExcludeFiles: []string{
+								"R.+.md", // captures README.md
+								"new_file",
+								"dependabot.yml",
+								"\\/root\\/.+\\/test.md", // captures root/sub/test.md
+							},
+							// our test file has a diff in four files,
+							// including added/removed which have a
+							// slightly trickier diff.  Adding any of
+							// these will get us above 2 lines and fail
+							// the test.
+							Below: "2",
+						},
+					},
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{"L"},
+		},
+		{
+			event:    "pull_request",
+			payloads: []string{"big_pr"},
+			name:     "Test the size_above rule applying file dodgy exclusions",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label: "L",
+						Size: &SizeConfig{
+							ExcludeFiles: []string{
+								"R.+.md", // captures README.md
+								"new_file",
+								"dependabot.yml",
+								"root/**/test",           // dodgy regex should NOT break the evaluation
+								"\\/root\\/.+\\/test.md", // captures root/sub/test.md
+							},
 							// our test file has a diff in four files,
 							// including added/removed which have a
 							// slightly trickier diff.  Adding any of
