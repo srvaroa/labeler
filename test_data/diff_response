@@ -76,3 +76,10 @@ index 6c61a60..85aa975 100644
 @@ -1 +1 @@
 -# Test File
 +# Test File !
+diff --git a/sub/test.md b/sub/test.md
+index 6c61a60..85aa975 100644
+--- a/sub/test.md
++++ b/sub/test.md
+@@ -1 +1 @@
+-# Test File
++# Test File !

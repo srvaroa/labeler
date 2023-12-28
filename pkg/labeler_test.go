@@ -339,6 +339,7 @@ func TestHandleEvent(t *testing.T) {
 								"new_file",
 								"dependabot.yml",
 								"\\/root\\/.+\\/test.md", // captures root/sub/test.md
+								"\\/.+\\/test.md",        // captures /sub/test.md
 							},
 							// our test file has a diff in four files,
 							// including added/removed which have a
@@ -369,6 +370,7 @@ func TestHandleEvent(t *testing.T) {
 								"dependabot.yml",
 								"root/**/test",           // dodgy regex should NOT break the evaluation
 								"\\/root\\/.+\\/test.md", // captures root/sub/test.md
+								"\\/.+\\/test.md",        // captures /sub/test.md
 							},
 							// our test file has a diff in four files,
 							// including added/removed which have a
@@ -531,6 +533,63 @@ func TestHandleEvent(t *testing.T) {
 			},
 			initialLabels:  []string{},
 			expectedLabels: []string{"Files"},
+		},
+		{
+			event:    "pull_request",
+			payloads: []string{"diff_pr"},
+			name:     "Test file condition corner case #1 (issue #33)",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label: "Book",
+						Files: []string{
+							// matches root/sub/test.md only
+							"root\\/.+\\/.+.md",
+						},
+					},
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{"Book"},
+		},
+		{
+			event:    "pull_request",
+			payloads: []string{"diff_pr"},
+			name:     "Test file condition corner case #2 (issue #33)",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label: "BookStyle",
+						Files: []string{
+							// matches sub/test.md only
+							"^sub\\/.+.md",
+						},
+					},
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{"BookStyle"},
+		},
+		{
+			event:    "pull_request",
+			payloads: []string{"diff_pr"},
+			name:     "Test file condition corner case #3 (issue #33)",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label: "BookStyle",
+						Files: []string{
+							// matches README.md, not the two above
+							"^.+.md",
+						},
+					},
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{"BookStyle"},
 		},
 		{
 			event:    "pull_request",
