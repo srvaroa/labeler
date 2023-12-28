@@ -8,3 +8,7 @@ labels:
       exclude-files: ["test.yaml"]
       above: 9
       below: 100
+  - label: L
+    size:
+      exclude-files: ["test.yaml", "\\/dir\\/test.+.yaml"]
+      above: 100

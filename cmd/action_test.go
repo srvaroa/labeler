@@ -225,6 +225,13 @@ func TestGetLabelerConfigV1WithCompositeSize(t *testing.T) {
 					Below:        "100",
 				},
 			},
+			{
+				Label: "L",
+				Size: &labeler.SizeConfig{
+					ExcludeFiles: []string{"test.yaml", "\\/dir\\/test.+.yaml"},
+					Above:        "100",
+				},
+			},
 		},
 	}
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -68,9 +69,9 @@ func isOldConfig(matcher LabelMatcher) bool {
 	return matcher.SizeAbove != "" || matcher.SizeBelow != ""
 }
 
-func (l *Labeler) getModifiedLinesCount(pr *gh.PullRequest, excludedFiles []string) (int64, error) {
+func (l *Labeler) getModifiedLinesCount(pr *gh.PullRequest, exclusions []string) (int64, error) {
 
-	if len(excludedFiles) == 0 {
+	if len(exclusions) == 0 {
 		// no exclusions so we can just rely on GH's summary which is
 		// more lightweight
 		return int64(math.Abs(float64(pr.GetAdditions() + pr.GetDeletions()))), nil
@@ -97,9 +98,11 @@ func (l *Labeler) getModifiedLinesCount(pr *gh.PullRequest, excludedFiles []stri
 			// We're in a file's block
 			path := strings.TrimPrefix(line, "---")
 			path = strings.TrimPrefix(path, "+++")
+			path = strings.TrimPrefix(path, "a/")
+			path = strings.TrimPrefix(path, "b/")
 			path = strings.TrimSpace(path)
 			// Check if the file path matches any of the excluded files
-			countFile = !isFileExcluded(path, excludedFiles)
+			countFile = !isFileExcluded(path, exclusions)
 			if countFile {
 				log.Printf("Counting changes in file %s", path)
 			} else {
@@ -118,9 +121,12 @@ func (l *Labeler) getModifiedLinesCount(pr *gh.PullRequest, excludedFiles []stri
 	return count, nil
 }
 
-func isFileExcluded(path string, excludedFiles []string) bool {
-	for _, excludedFile := range excludedFiles {
-		if strings.HasSuffix(path, excludedFile) {
+func isFileExcluded(path string, exclusions []string) bool {
+	for _, exclusion := range exclusions {
+		exclusionRegex, err := regexp.Compile(exclusion)
+		if err != nil {
+			log.Printf("Error compiling file exclusion regex %s: %s", exclusion, err)
+		} else if exclusionRegex.MatchString(path) {
 			return true
 		}
 	}

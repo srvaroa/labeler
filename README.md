@@ -400,10 +400,11 @@ files:
 - ".*\\/subfolder\\/.*\\.md"
 ```
 
-> **NOTICE** the double backslash (`\\`) in the example above. This GitHub Action is coded in Go (Golang), which means
-> you need to pay special attention to regular expressions (Regex). Special characters need to be escaped with double
-> backslashes. This is because the backslash in Go strings is an escape character and therefore must be escaped itself 
-> to appear as a literal in the regex.
+> **NOTICE** the double backslash (`\\`) in the example above. This GitHub
+Action is coded in Go (Golang), which means you need to pay special attention to
+regular expressions (Regex). Special characters need to be escaped with double
+backslashes. This is because the backslash in Go strings is an escape character
+and therefore must be escaped itself to appear as a literal in the regex.
 
 ### Mergeable status (PRs only) <a name="mergeable" />
 
@@ -457,17 +458,25 @@ reported by the [GitHub API](https://developer.github.com/v3/pulls).
 
 You can exclude some files so that their changes are not taken into
 account for the overall count. This can be useful for `yarn.lock`,
-`go.sum` and such. Use `exclude-files`:
+`go.sum` and such. Use `exclude-files`, which supports both an explicit
+file or a Regex expression:
 
 ```yaml
 - label: "L"
     size:
-        exclude-files: ["yarn.lock"]
+        exclude-files: ["yarn.lock", "\\/root\\/.+\\/test.md"]
         above: 100
 ``` 
 
 This condition will apply the `L` label if the diff is above 100 lines,
-but NOT taking into account changes in `yarn.lock`.
+but NOT taking into account changes in `yarn.lock`, or any `test.md`
+file that is in a subdirectory of `root`.
+
+**NOTICE** the double backslash (`\\`) in the example above. This GitHub
+Action is coded in Go (Golang), which means you need to pay special attention to
+regular expressions (Regex). Special characters need to be escaped with double
+backslashes. This is because the backslash in Go strings is an escape character
+and therefore must be escaped itself to appear as a literal in the regex.
 
 **NOTICE** the old format for specifying size properties (`size-above`
 and `size-below`) has been deprecated. The action will continue
