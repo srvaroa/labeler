@@ -22,11 +22,12 @@ configurable matching rules. Available conditions:
 
 ## Sponsors
 
-Thanks to [Launchgood](https://github.com/launchgood) for sponsoring
-this project.
+Please consider supporting the project if your organization finds it useful,
+you can do this through [GitHub Sponsors](https://github.com/sponsors/srvaroa).
+Sponsorships also help speed up bug fixes or new features.
 
-Please consider supporting the project if your organization is finding
-it useful, you can do this through [GitHub Sponsors](https://github.com/sponsors/srvaroa).
+Thanks to [Launchgood](https://github.com/launchgood) and others that
+preferred to remain private for supporting this project!
 
 ## Installing
 
