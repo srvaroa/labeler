@@ -1,0 +1,17 @@
+---
+version: 1
+labels:
+  - label: "TestLabel"
+    color: "#ff0000"
+    description: "with color and description"
+    title: ".*"
+  - label: "TestFileMatch"
+    color: "#00ff00"
+    files: 
+    - "cmd\\/.*.go"
+    - "pkg\\/.*.go"
+  - label: "TestTypePullRequest"
+    description: "without color"
+    type: "pull_request"
+  - label: "TestTypeIssue"
+    type: "issue"
