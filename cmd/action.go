@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 	"strconv"
@@ -46,7 +46,7 @@ func main() {
 	var configRaw *[]byte
 	if useLocalConfig {
 		log.Printf("Reading configuration from local file: %s", configFile)
-		contents, err := ioutil.ReadFile(configFile)
+		contents, err := os.ReadFile(configFile)
 		if err != nil {
 			log.Printf("Error reading configuration from local file: %s", err)
 			os.Exit(failCode)
@@ -98,6 +98,65 @@ func main() {
 			log.Printf("Unable to execute action: %+v", err)
 		}
 	}
+}
+
+func applyLabelConfiguration(gh *labeler.GitHubFacade, config *labeler.LabelerConfigV1, owner, repo string) error {
+	labels, err := gh.ListLabels(owner, repo)
+	if err != nil {
+		log.Printf("Unable to list labels for %s/%s: %+v", owner, repo, err)
+		return err
+	}
+
+	// index labels per name
+	labelsByName := make(map[string]*github.Label)
+	for _, label := range labels {
+		labelsByName[*label.Name] = label
+	}
+
+	// find all labels we have a config for, and apply the new config
+	for _, matcher := range config.Labels {
+		if len(matcher.Color) > 0 || len(matcher.Description) > 0 {
+			// nothing to do here
+			continue
+		}
+
+		// try to find the label in the index
+		ghLabel := labelsByName[matcher.Label]
+		if ghLabel == nil {
+			// new label, create it
+			_, err = gh.CreateLabel(owner, repo, &github.Label{
+				Name:        &matcher.Label,
+				Description: &matcher.Description,
+				Color:       &matcher.Color,
+			})
+			if err != nil {
+				log.Printf("Unable to create label %s: %+v", matcher.Label, err)
+				return err
+			}
+		} else {
+			desiredColor := getOrDefault(ghLabel.GetColor(), matcher.Color)
+			desiredDescription := getOrDefault(ghLabel.GetDescription(), matcher.Description)
+			_, err := gh.EditLabel(owner, repo, &github.Label{
+				Name:        &matcher.Label,
+				Description: &desiredDescription,
+				Color:       &desiredColor,
+			})
+			if err != nil {
+				log.Printf("Unable to update label %s: %+v", ghLabel.GetName(), err)
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func getOrDefault(fallbackValue string, maybeNewValue string) string {
+	result := maybeNewValue
+	// if result is nil or an empty string, return the fallback value
+	if len(result) == 0 {
+		return fallbackValue
+	}
+	return result
 }
 
 func getRepoFile(gh *github.Client, repo, file, sha string) (*[]byte, error) {
@@ -193,7 +252,7 @@ func getEventPayload() *[]byte {
 	if err != nil {
 		log.Fatalf("Failed to open event payload file %s: %s", payloadPath, err)
 	}
-	eventPayload, err := ioutil.ReadAll(file)
+	eventPayload, err := io.ReadAll(file)
 	if err != nil {
 		log.Fatalf("Failed to load event payload from %s: %s", payloadPath, err)
 	}
@@ -243,6 +302,22 @@ func newLabeler(gh *github.Client, config *labeler.LabelerConfigV1) *labeler.Lab
 				prs, _, err := gh.PullRequests.List(ctx,
 					owner, repo, &github.PullRequestListOptions{})
 				return prs, err
+			},
+
+			ListLabels: func(owner, repo string) ([]*github.Label, error) {
+				labels, _, err := gh.Issues.ListLabels(ctx,
+					owner, repo, &github.ListOptions{})
+				return labels, err
+			},
+			EditLabel: func(owner, repo string, label *github.Label) (*github.Label, error) {
+				l, _, err := gh.Issues.EditLabel(ctx,
+					owner, repo, *label.Name, label)
+				return l, err
+			},
+			CreateLabel: func(owner, repo string, label *github.Label) (*github.Label, error) {
+				l, _, err := gh.Issues.CreateLabel(ctx,
+					owner, repo, label)
+				return l, err
 			},
 		},
 		Client: labeler.NewDefaultHttpClient(),

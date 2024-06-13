@@ -14,6 +14,10 @@ type SizeConfig struct {
 }
 
 type LabelMatcher struct {
+	// These two properties define the configuration of the label
+	Color       string
+	Description string
+	// These two properties define matching conditions
 	Age            string
 	AuthorCanMerge string `yaml:"author-can-merge"`
 	Authors        []string
@@ -47,9 +51,13 @@ type LabelerConfigV1 struct {
 	Issues bool
 	// When set to true, we will only add labels when they match a rule
 	// but it will NOT remove labels that were previously set and stop
-	// matching a rule
+	// matching a rule. Defaults to "False".
 	AppendOnly bool `yaml:"appendOnly"`
-	Labels     []LabelMatcher
+	// When set to true we will only add labels that already exist in the
+	// repository. Defaults to "False".
+	OnlyExistingLabels bool `yaml:"onlyExistingLabels"`
+	// The matchers.
+	Labels []LabelMatcher
 }
 
 // LabelUpdates Represents a request to update the set of labels
@@ -62,14 +70,18 @@ type GitHubFacade struct {
 	GetRawDiff       func(owner, repo string, prNumber int) (string, error)
 	ListIssuesByRepo func(owner, repo string) ([]*gh.Issue, error)
 	ListPRs          func(owner, repo string) ([]*gh.PullRequest, error)
+	ListLabels       func(owner, repo string) ([]*gh.Label, error)
+	EditLabel        func(owner, repo string, label *gh.Label) (*gh.Label, error)
+	CreateLabel      func(owner, repo string, label *gh.Label) (*gh.Label, error)
 }
 
 type Labeler struct {
-	FetchRepoConfig  func() (*LabelerConfigV1, error)
-	ReplaceLabels    func(target *Target, labels []string) error
-	GetCurrentLabels func(target *Target) ([]string, error)
-	GitHubFacade     *GitHubFacade
-	Client           HttpClient
+	FetchRepoConfig     func() (*LabelerConfigV1, error)
+	ReplaceLabels       func(target *Target, labels []string) error
+	GetRepositoryLabels func(owner, repo string) (map[string]string, error)
+	GetCurrentLabels    func(target *Target) ([]string, error)
+	GitHubFacade        *GitHubFacade
+	Client              HttpClient
 }
 
 type Condition struct {
@@ -181,9 +193,25 @@ func (l *Labeler) ExecuteOn(target *Target) error {
 	if config.AppendOnly {
 		log.Printf("AppendOnly is active, removals are forbidden")
 	}
+	var repoLabels = map[string]string{}
+	if config.OnlyExistingLabels {
+		log.Printf("OnlyExistingLabels is active, only labels that already exist in the repo will be touched")
+		repoLabels, err = l.GetRepositoryLabels(target.Owner, target.RepoName)
+		if err != nil {
+			log.Printf("Unable to get repository labels %+v", err)
+			return err
+		}
+	}
 	// update, adding new ones and unflagging those to remove if
 	// necessary
 	for label, isDesired := range labelUpdates.set {
+		// if repoLabels does not contain label, then ignore this matcher
+		if config.OnlyExistingLabels {
+			if _, ok := repoLabels[label]; !ok {
+				log.Printf("Label %s does not exist in the repo, skipping", label)
+				continue
+			}
+		}
 		if config.AppendOnly {
 			// If we DO NOT allow deletions, then we will respect
 			// labels that were already set in the current set
