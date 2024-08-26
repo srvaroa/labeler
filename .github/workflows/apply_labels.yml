@@ -1,7 +1,8 @@
 name: Label PRs with published action as canary
 
 on:
-  pull_request:
+    - pull_request
+    - issues
 
 jobs:
   apply_labels:

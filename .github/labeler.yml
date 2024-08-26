@@ -1,9 +1,63 @@
 version: 1
+
 labels:
-  - label: "TestLabel"
-    title: ".*"
-  - label: "TestFileMatch"
-    files: 
-      - "cmd/.*.go"
-      - "pkg/.*.go"
-  
+    # Type: Build-related changes
+    -   label: "@type/build"
+        title: '^build(?:\(.+\))?\!?:'
+
+    # Type: CI-related changes
+    -   label: "@type/ci"
+        title: '^ci(?:\(.+\))?\!?:'
+        files:
+            - '\.github/.+'
+
+    # Type: Documentation changes
+    -   label: "@type/docs"
+        title: '^docs(?:\(.+\))?\!?:'
+        files:
+            - "docs/.+"
+            - "**/*.md"
+
+    # Type: New feature
+    -   label: "@type/feature"
+        title: '^feat(?:\(.+\))?\!?:'
+
+    # Type: Bug fix
+    -   label: "@type/fix"
+        title: '^fix(?:\(.+\))?\!?:'
+
+    # Type: Improvements such as style changes, refactoring, or performance improvements
+    -   label: "@type/improve"
+        title: '^(style|refactor|perf)(?:\(.+\))?\!?:'
+
+    # Type: Dependency changes
+    -   label: "@type/dependency"
+        title: '^(chore|build)(?:\(deps\))?\!?:'
+
+    # Type: Test-related changes
+    -   label: "@type/test"
+        title: '^test(?:\(.+\))?\!?:'
+        files:
+            - "tests/.+"
+            - "spec/.+"
+
+    # Type: Security-related changes
+    -   label: "@type/security"
+        title: '^security(?:\(.+\))?\!?:'
+        files:
+            - "**/security/.+"
+
+    # Issue Type Only: Feature Request
+    -   label: "Feature Request"
+        type: issue
+        title: "^Feature Request:"
+
+    # Issue Type Only: Documentation
+    -   label: "Documentation"
+        type: issue
+        title: "^.*(\b[Dd]ocumentation|doc(s)?\b).*"
+
+    # Issue Type Only: Bug Report
+    -   label: "Bug Report"
+        type: issue
+        title: "^.*(\b[Bb]ug|b(u)?g(s)?\b).*"
