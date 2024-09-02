@@ -9,6 +9,7 @@ configurable matching rules. Available conditions:
 
 * [Age](#age): label based on the age of a PR or Issue.
 * [Author can merge](#author-can-merge): label based on whether the author can merge the PR
+* [Author is member of team](#author-in-team): label based on whether the author is an active member of the given team
 * [Authors](#authors): label based on the PR/Issue authors
 * [Base branch](#base-branch): label based on the PR's base branch name
 * [Body](#body): label based on the PR/Issue body
@@ -339,6 +340,17 @@ This is implemented by checking if the author is an owner of the repo.
 ```yaml
 author-can-merge: True
 ```
+
+
+### Author is member (PRs and Issues) <a name="author-in-team" />
+
+This condition is satisfied when the author of the PR is an active
+member of the given team.
+
+```yaml
+author-is-member: CoreTeam
+```
+
 ### Authors (PRs and Issues)  <a name="authors" />
 
 This condition is satisfied when the author of the PR or Issue matches
