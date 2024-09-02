@@ -1,6 +1,16 @@
 version: 1
 
 labels:
+    # Type: Recent changes
+    -   label: "@type/new"
+        last-modified:
+            at-most: 1d
+
+    # Type: Old changes
+    -   label: "@type/old"
+        last-modified: 
+            at-least: 30d
+
     # Type: Build-related changes
     -   label: "@type/build"
         title: '^build(?:\(.+\))?\!?:'
