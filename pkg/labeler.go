@@ -7,6 +7,11 @@ import (
 	gh "github.com/google/go-github/v50/github"
 )
 
+type DurationConfig struct {
+	AtLeast string `yaml:"at-least"`
+	AtMost  string `yaml:"at-most"`
+}
+
 type SizeConfig struct {
 	ExcludeFiles []string `yaml:"exclude-files"`
 	Above        string
@@ -23,6 +28,7 @@ type LabelMatcher struct {
 	Draft          string
 	Files          []string
 	Label          string
+	LastModified   *DurationConfig `yaml:"last-modified"`
 	Mergeable      string
 	Negate         bool
 	Size           *SizeConfig
@@ -223,6 +229,7 @@ func (l *Labeler) findMatches(target *Target, config *LabelerConfigV1) (LabelUpd
 		BodyCondition(),
 		BranchCondition(),
 		FilesCondition(l),
+		LastModifiedCondition(l),
 		IsDraftCondition(),
 		IsMergeableCondition(),
 		SizeCondition(l),

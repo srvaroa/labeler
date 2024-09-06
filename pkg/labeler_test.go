@@ -965,6 +965,24 @@ func TestHandleEvent(t *testing.T) {
 			initialLabels:  []string{"Meh"},
 			expectedLabels: []string{"Meh", "Test"},
 		},
+		{
+			event:    "pull_request",
+			payloads: []string{"create_pr"},
+			name:     "Add a label to pull request when last-modified.at-least matches",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label: "Test",
+						LastModified: &DurationConfig{
+							AtLeast: "1d",
+						},
+					},
+				},
+			},
+			initialLabels:  []string{"Meh"},
+			expectedLabels: []string{"Meh", "Test"},
+		},
 	}
 
 	for _, tc := range testCases {

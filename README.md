@@ -309,6 +309,9 @@ alphabetical order. Some important considerations:
 This condition is satisfied when the age of the PR or Issue are larger than
 the given one. The age is calculated from the creation date.
 
+If you're looking to evaluate on the modification date of the issue or PR, 
+check on <a href="#last-modified" ></a>
+
 This condition is best used when with a <a href="#schedule">schedule trigger</a>.
 
 Example:
@@ -406,6 +409,41 @@ Action is coded in Go (Golang), which means you need to pay special attention to
 regular expressions (Regex). Special characters need to be escaped with double
 backslashes. This is because the backslash in Go strings is an escape character
 and therefore must be escaped itself to appear as a literal in the regex.
+
+### Last Modified (PRs and Issues) <a name="last-modified" />
+
+This condition evaluates the modification date of the PR or Issue. 
+
+If you're looking to evaluate on the creation date of the issue or PR, 
+check on <a href="#age" ></a>
+
+This condition is best used when with a <a href="#schedule">schedule trigger</a>.
+
+Examples:
+
+```yaml
+last-modified:
+  at-most: 1d
+```
+Will label PRs or issues that were last modified at most one day ago
+
+```yaml
+last-modified:
+  at-least: 1d
+```
+
+Will label PRs or issues that were last modified at least one day ago
+
+The syntax for values is based on a number, followed by a suffix:
+
+* s: seconds
+* m: minutes
+* h: hours
+* d: days
+* w: weeks
+* y: years
+
+For example, `2d` means 2 days, `4w` means 4 weeks, and so on.
 
 ### Mergeable status (PRs only) <a name="mergeable" />
 
