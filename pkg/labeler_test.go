@@ -983,6 +983,46 @@ func TestHandleEvent(t *testing.T) {
 			initialLabels:  []string{"Meh"},
 			expectedLabels: []string{"Meh", "Test"},
 		},
+		{
+			event:    "issues",
+			payloads: []string{"issue_open"},
+			name:     "Add a label to issue when author is in team",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label:        "ShouldAppear",
+						AuthorInTeam: "team-with-srvaroa",
+					},
+					{
+						Label:        "ShouldNotAppear",
+						AuthorInTeam: "team-with",
+					},
+				},
+			},
+			initialLabels:  []string{"Meh"},
+			expectedLabels: []string{"Meh", "ShouldAppear"},
+		},
+		{
+			event:    "pull_request",
+			payloads: []string{"create_pr"},
+			name:     "Add a label to PR when author is in team",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label:        "ShouldAppear",
+						AuthorInTeam: "team-with-srvaroa",
+					},
+					{
+						Label:        "ShouldNotAppear",
+						AuthorInTeam: "team-with",
+					},
+				},
+			},
+			initialLabels:  []string{"Meh"},
+			expectedLabels: []string{"Meh", "ShouldAppear"},
+		},
 	}
 
 	for _, tc := range testCases {
@@ -1033,6 +1073,10 @@ func NewTestLabeler(t *testing.T, tc TestCase) Labeler {
 
 				data, err := ioutil.ReadAll(file)
 				return string(data), nil
+			},
+			// Will return true whenever team contains the given user name
+			IsUserMemberOfTeam: func(user, team string) (bool, error) {
+				return strings.Contains(team, user), nil
 			},
 		},
 	}

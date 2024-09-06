@@ -244,6 +244,13 @@ func newLabeler(gh *github.Client, config *labeler.LabelerConfigV1) *labeler.Lab
 					owner, repo, &github.PullRequestListOptions{})
 				return prs, err
 			},
+			IsUserMemberOfTeam: func(user, team string) (bool, error) {
+				membership, _, err := gh.Organizations.GetOrgMembership(ctx, user, team)
+				if err != nil {
+					return false, err
+				}
+				return membership.GetState() == "active", nil
+			},
 		},
 		Client: labeler.NewDefaultHttpClient(),
 	}

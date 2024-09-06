@@ -22,6 +22,7 @@ type LabelMatcher struct {
 	Age            string
 	AuthorCanMerge string `yaml:"author-can-merge"`
 	Authors        []string
+	AuthorInTeam   string `yaml:"author-in-team"`
 	BaseBranch     string `yaml:"base-branch"`
 	Body           string
 	Branch         string
@@ -65,9 +66,10 @@ type LabelUpdates struct {
 
 // Just to make this mockable..
 type GitHubFacade struct {
-	GetRawDiff       func(owner, repo string, prNumber int) (string, error)
-	ListIssuesByRepo func(owner, repo string) ([]*gh.Issue, error)
-	ListPRs          func(owner, repo string) ([]*gh.PullRequest, error)
+	GetRawDiff         func(owner, repo string, prNumber int) (string, error)
+	ListIssuesByRepo   func(owner, repo string) ([]*gh.Issue, error)
+	ListPRs            func(owner, repo string) ([]*gh.PullRequest, error)
+	IsUserMemberOfTeam func(user, team string) (bool, error)
 }
 
 type Labeler struct {
@@ -225,6 +227,7 @@ func (l *Labeler) findMatches(target *Target, config *LabelerConfigV1) (LabelUpd
 		AgeCondition(l),
 		AuthorCondition(),
 		AuthorCanMergeCondition(),
+		AuthorInTeamCondition(l),
 		BaseBranchCondition(),
 		BodyCondition(),
 		BranchCondition(),
