@@ -7,7 +7,7 @@ Action](https://help.github.com/en/categories/automating-your-workflow-with-gith
 that can manage multiple labels for both Pull Requests and Issues using
 configurable matching rules. Available conditions:
 
-* [Age](#age): label based on the age of a PR or Issue.
+* [Age](#age): label based on the age of a PR or Issue
 * [Author can merge](#author-can-merge): label based on whether the author can merge the PR
 * [Author is member of team](#author-in-team): label based on whether the author is an active member of the given team
 * [Authors](#authors): label based on the PR/Issue authors
@@ -16,6 +16,7 @@ configurable matching rules. Available conditions:
 * [Branch](#branch): label based on the PR's branch name
 * [Draft](#draft): label based on whether the PR is a draft
 * [Files](#files): label based on the files modified in the PR
+* [Last modified](#last-modified): label based on the last modification to a PR or Issue
 * [Mergeable](#mergeable): label based on whether the PR is mergeable
 * [Size](#size): label based on the PR size, allowing file exclusions
 * [Title](#title): label based on the PR/Issue title
