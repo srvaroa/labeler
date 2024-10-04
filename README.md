@@ -349,7 +349,7 @@ This condition is satisfied when the author of the PR is an active
 member of the given team.
 
 ```yaml
-author-is-member: CoreTeam
+author-in-team: CoreTeam
 ```
 
 ### Authors (PRs and Issues)  <a name="authors" />
