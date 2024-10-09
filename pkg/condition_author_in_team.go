@@ -17,7 +17,11 @@ func AuthorInTeamCondition(l *Labeler) Condition {
 				return false, fmt.Errorf("author-in-team is not set in config")
 			}
 			// check if author is a member of team
-			return l.GitHubFacade.IsUserMemberOfTeam(target.Author, matcher.AuthorInTeam)
+			return l.GitHubFacade.IsUserMemberOfTeam(
+				target.Owner,
+				target.Author,
+				matcher.AuthorInTeam, // this is the team slug
+			)
 		},
 	}
 }
