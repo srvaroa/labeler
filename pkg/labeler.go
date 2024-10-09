@@ -69,7 +69,7 @@ type GitHubFacade struct {
 	GetRawDiff         func(owner, repo string, prNumber int) (string, error)
 	ListIssuesByRepo   func(owner, repo string) ([]*gh.Issue, error)
 	ListPRs            func(owner, repo string) ([]*gh.PullRequest, error)
-	IsUserMemberOfTeam func(user, team string) (bool, error)
+	IsUserMemberOfTeam func(org, user, team string) (bool, error)
 }
 
 type Labeler struct {

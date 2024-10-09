@@ -1075,7 +1075,7 @@ func NewTestLabeler(t *testing.T, tc TestCase) Labeler {
 				return string(data), nil
 			},
 			// Will return true whenever team contains the given user name
-			IsUserMemberOfTeam: func(user, team string) (bool, error) {
+			IsUserMemberOfTeam: func(org, user, team string) (bool, error) {
 				return strings.Contains(team, user), nil
 			},
 		},

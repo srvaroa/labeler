@@ -231,7 +231,7 @@ func newLabeler(gh *github.Client, config *labeler.LabelerConfigV1) *labeler.Lab
 			GetRawDiff: func(owner, repo string, prNumber int) (string, error) {
 				diff, _, err := gh.PullRequests.GetRaw(ctx,
 					owner, repo, prNumber,
-					github.RawOptions{github.Diff})
+					github.RawOptions{Type: github.Diff})
 				return diff, err
 			},
 			ListIssuesByRepo: func(owner, repo string) ([]*github.Issue, error) {
@@ -244,8 +244,8 @@ func newLabeler(gh *github.Client, config *labeler.LabelerConfigV1) *labeler.Lab
 					owner, repo, &github.PullRequestListOptions{})
 				return prs, err
 			},
-			IsUserMemberOfTeam: func(user, team string) (bool, error) {
-				membership, _, err := gh.Organizations.GetOrgMembership(ctx, user, team)
+			IsUserMemberOfTeam: func(org, user, team string) (bool, error) {
+				membership, _, err := gh.Teams.GetTeamMembershipBySlug(ctx, org, team, user)
 				if err != nil {
 					return false, err
 				}
