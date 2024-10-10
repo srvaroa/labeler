@@ -346,10 +346,10 @@ author-can-merge: True
 ### Author is member (PRs and Issues) <a name="author-in-team" />
 
 This condition is satisfied when the author of the PR is an active
-member of the given team.
+member of the given team (identified by its url slug).
 
 ```yaml
-author-in-team: CoreTeam
+author-in-team: core-team
 ```
 
 ### Authors (PRs and Issues)  <a name="authors" />
