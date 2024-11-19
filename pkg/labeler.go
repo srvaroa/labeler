@@ -19,7 +19,8 @@ type SizeConfig struct {
 }
 
 type LabelMatcher struct {
-	Age            string
+	Age            string          `yaml:"age,omitempty"` // Deprecated age config.
+	AgeRange       *DurationConfig `yaml:"age,omitempty"`
 	AuthorCanMerge string `yaml:"author-can-merge"`
 	Authors        []string
 	AuthorInTeam   string `yaml:"author-in-team"`
