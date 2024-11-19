@@ -204,6 +204,32 @@ func TestHandleEvent(t *testing.T) {
 			initialLabels:  []string{},
 			expectedLabels: []string{"ThisIsOld"},
 		},
+		// Test the AgeRange configuration
+		{
+			event:    "pull_request",
+			payloads: []string{"create_pr"},
+			name:     "Age of a PR in the past",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label: "Getting Old",
+						AgeRange: &DurationConfig{
+							AtLeast: "7d",
+							AtMost: "14d",
+						},
+					},
+					{
+						Label: "Getting Ancient",
+						AgeRange: &DurationConfig{
+							AtLeast: "14d",
+						},
+					},
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{"Getting Ancient"},
+		},
 		{
 			event:    "pull_request",
 			payloads: []string{"create_draft_pr"},
