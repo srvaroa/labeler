@@ -53,7 +53,7 @@ Please consider [sponsoring the project](https://github.com/sponsors/srvaroa) if
 ### How to trigger action
 
 To trigger the action on events, add a file `.github/workflows/main.yml`
-to your repository: 
+to your repository:
 
 ```yaml
 name: Label PRs
@@ -294,7 +294,7 @@ With this config, the behaviour changes:
 
 ## Conditions
 
-Below are the conditions currently supported in label matchers, in 
+Below are the conditions currently supported in label matchers, in
 alphabetical order. Some important considerations:
 
 * Conditions evaluate only when they are explicitly added in
@@ -308,19 +308,28 @@ alphabetical order. Some important considerations:
 
 ### Age (PRs and Issues) <a name="age" />
 
-This condition is satisfied when the age of the PR or Issue are larger than
-the given one. The age is calculated from the creation date.
+This condition evaluates the creation date of the PR or Issue.
 
-If you're looking to evaluate on the modification date of the issue or PR, 
+If you're looking to evaluate on the modification date of the issue or PR,
 check on <a href="#last-modified" ></a>
 
 This condition is best used when with a <a href="#schedule">schedule trigger</a>.
 
-Example:
+Examples:
 
 ```yaml
-age: 1d
+age:
+  at-most: 1d
 ```
+
+Will label PRs or issues that were created at most one day ago.
+
+```yaml
+age:
+  at-least: 1d
+```
+
+Will label PRs or issues that were created at least one day ago.
 
 The syntax for values is based on a number, followed by a suffix:
 
@@ -412,7 +421,7 @@ This condition is satisfied when any of the PR files matches on the
 given regexs.
 
 ```yaml
-files: 
+files:
 - "cmd\\/.*_tests.go"
 - ".*\\/subfolder\\/.*\\.md"
 ```
@@ -425,9 +434,9 @@ and therefore must be escaped itself to appear as a literal in the regex.
 
 ### Last Modified (PRs and Issues) <a name="last-modified" />
 
-This condition evaluates the modification date of the PR or Issue. 
+This condition evaluates the modification date of the PR or Issue.
 
-If you're looking to evaluate on the creation date of the issue or PR, 
+If you're looking to evaluate on the creation date of the issue or PR,
 check on <a href="#age" ></a>
 
 This condition is best used when with a <a href="#schedule">schedule trigger</a>.
@@ -462,19 +471,19 @@ For example, `2d` means 2 days, `4w` means 4 weeks, and so on.
 
 This condition is satisfied when the [mergeable
 state](https://developer.github.com/v3/pulls/#response-1) matches that
-of the PR. 
+of the PR.
 
 ```yaml
 mergeable: True
 ```
 
-Will match if the label is mergeable. 
+Will match if the label is mergeable.
 
 ```yaml
 mergeable: False
 ```
 
-Will match if the label is not mergeable. 
+Will match if the label is not mergeable.
 
 ### Size (PRs only) <a name="size" />
 
@@ -518,7 +527,7 @@ file or a Regex expression:
     size:
         exclude-files: ["yarn.lock", "\\/root\\/.+\\/test.md"]
         above: 100
-``` 
+```
 
 This condition will apply the `L` label if the diff is above 100 lines,
 but NOT taking into account changes in `yarn.lock`, or any `test.md`
