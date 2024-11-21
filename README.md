@@ -318,18 +318,18 @@ This condition is best used when with a <a href="#schedule">schedule trigger</a>
 Examples:
 
 ```yaml
-age:
+age-range:
   at-most: 1d
 ```
 
 Will label PRs or issues that were created at most one day ago.
 
 ```yaml
-age:
-  at-least: 1d
+age-range:
+  at-least: 1w
 ```
 
-Will label PRs or issues that were created at least one day ago.
+Will label PRs or issues that were created at least one week ago.
 
 The syntax for values is based on a number, followed by a suffix:
 
