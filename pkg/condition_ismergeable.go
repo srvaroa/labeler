@@ -18,10 +18,14 @@ func IsMergeableCondition() Condition {
 			if err != nil {
 				return false, fmt.Errorf("mergeable is not set in config")
 			}
+
+			//  Check both the mergeable state and the mergeable flag
+			isMergeable := target.ghPR.GetMergeable() && target.ghPR.GetMergeableState() == "clean"
+
 			if b {
-				return target.ghPR.GetMergeable(), nil
+				return isMergeable, nil
 			}
-			return !target.ghPR.GetMergeable(), nil
+			return !isMergeable, nil
 		},
 	}
 }
