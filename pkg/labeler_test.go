@@ -1049,6 +1049,22 @@ func TestHandleEvent(t *testing.T) {
 			initialLabels:  []string{"Meh"},
 			expectedLabels: []string{"Meh", "ShouldAppear"},
 		},
+		{
+			event:    "pull_request",
+			payloads: []string{"create_pr_mergeable_not_clean"},
+			name:     "Don't add label when PR is mergeable but state is not clean",
+			config: LabelerConfigV1{
+				Version: 1,
+				Labels: []LabelMatcher{
+					{
+						Label:     "CanMerge",
+						Mergeable: "True",
+					},
+				},
+			},
+			initialLabels:  []string{},
+			expectedLabels: []string{},
+		},
 	}
 
 	for _, tc := range testCases {
@@ -1059,6 +1075,7 @@ func TestHandleEvent(t *testing.T) {
 					fmt.Printf("Test `%s`: failed to load %s\n", tc.name, file)
 					t.Fatal(err)
 				}
+				fmt.Printf("Loaded payload: %s\n", string(payload))
 
 				fmt.Printf("--> TEST: %s \n", tc.name)
 				l := NewTestLabeler(t, tc)
