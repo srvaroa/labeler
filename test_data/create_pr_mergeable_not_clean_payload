@@ -1,0 +1,41 @@
+{
+  "action": "opened",
+  "number": 1,
+  "pull_request": {
+    "number": 1,
+    "state": "open",
+    "locked": false,
+    "title": "Update test",
+    "user": {
+      "login": "srvaroa",
+      "type": "User"
+    },
+    "body": "Test PR",
+    "base": {
+      "repo": {
+        "name": "labeler",
+        "owner": {
+          "login": "srvaroa"
+        }
+      }
+    },
+    "created_at": "2019-05-24T22:03:59Z",
+    "updated_at": "2019-05-24T22:03:59Z",
+    "closed_at": null,
+    "merged_at": null,
+    "merge_commit_sha": null,
+    "assignee": null,
+    "assignees": [],
+    "requested_reviewers": [],
+    "requested_teams": [],
+    "labels": [],
+    "milestone": null,
+    "commits": 1,
+    "additions": 1,
+    "deletions": 1,
+    "changed_files": 1,
+    "mergeable": true,
+    "mergeable_state": "blocked",
+    "author_association": "OWNER"
+  }
+}
