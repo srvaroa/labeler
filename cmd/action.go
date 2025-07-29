@@ -236,12 +236,16 @@ func newLabeler(gh *github.Client, config *labeler.LabelerConfigV1) *labeler.Lab
 			},
 			ListIssuesByRepo: func(owner, repo string) ([]*github.Issue, error) {
 				issues, _, err := gh.Issues.ListByRepo(ctx,
-					owner, repo, &github.IssueListByRepoOptions{})
+					owner, repo, &github.IssueListByRepoOptions{
+						State: "open",
+					})
 				return issues, err
 			},
 			ListPRs: func(owner, repo string) ([]*github.PullRequest, error) {
 				prs, _, err := gh.PullRequests.List(ctx,
-					owner, repo, &github.PullRequestListOptions{})
+					owner, repo, &github.PullRequestListOptions{
+						State: "open",
+					})
 				return prs, err
 			},
 			IsUserMemberOfTeam: func(org, user, team string) (bool, error) {

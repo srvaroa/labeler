@@ -317,9 +317,14 @@ func (l *Labeler) ProcessAllIssues(owner, repo string) {
 		return
 	}
 
-	for _, pr := range issues {
-		err = l.ExecuteOn(wrapIssueAsTarget(pr))
-		log.Printf("Unable to execute action: %+v", err)
+	for _, issue := range issues {
+		if issue.State != nil && strings.ToLower(*issue.State) != "open" {
+			continue
+		}
+		err = l.ExecuteOn(wrapIssueAsTarget(issue))
+		if err != nil {
+			log.Printf("Unable to execute action on issue #%d: %+v", issue.GetNumber(), err)
+		}
 	}
 }
 
@@ -333,8 +338,13 @@ func (l *Labeler) ProcessAllPRs(owner, repo string) {
 	}
 
 	for _, pr := range prs {
+		if pr.State != nil && strings.ToLower(*pr.State) != "open" {
+			continue
+		}
 		err = l.ExecuteOn(wrapPrAsTarget(pr))
-		log.Printf("Unable to execute action: %+v", err)
+		if err != nil {
+			log.Printf("Unable to execute action on PR #%d: %+v", pr.GetNumber(), err)
+		}
 	}
 
 }
