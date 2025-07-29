@@ -10,6 +10,9 @@ import (
 	"sort"
 	"strings"
 	"testing"
+	"time"
+
+	gh "github.com/google/go-github/v50/github"
 )
 
 func loadPayload(name string) ([]byte, error) {
@@ -29,10 +32,149 @@ type TestCase struct {
 	expectedLabels []string
 }
 
-func TestHandleEvent(t *testing.T) {
+func TestProcessAllIssues(t *testing.T) {
+	type call struct {
+		issueNo int
+		labels  []string
+	}
 
+	fakeIssues := []*gh.Issue{
+		{
+			Number:        gh.Int(1),
+			Title:         gh.String("Testy test"),
+			Body:          gh.String("This is the description!"),
+			User:          &gh.User{Login: gh.String("srvaroa")},
+			State:         gh.String("open"),
+			CreatedAt:     &gh.Timestamp{Time: time.Now()},
+			Labels:        []*gh.Label{},
+			RepositoryURL: gh.String("https://api.github.com/repos/srvaroa/labeler"),
+		},
+	}
+
+	makeLabeler := func(cfg LabelerConfigV1, calls *[]call) Labeler {
+		return Labeler{
+			FetchRepoConfig:  func() (*LabelerConfigV1, error) { return &cfg, nil },
+			GetCurrentLabels: func(target *Target) ([]string, error) { return []string{"ShouldStay"}, nil },
+			ReplaceLabels: func(target *Target, labels []string) error {
+				*calls = append(*calls, call{issueNo: target.IssueNo, labels: labels})
+				return nil
+			},
+			GitHubFacade: &GitHubFacade{
+				ListIssuesByRepo: func(owner, repo string) ([]*gh.Issue, error) {
+					return fakeIssues, nil
+				},
+			},
+		}
+	}
+
+	t.Run("Does not process issues if Issues flag is not set", func(t *testing.T) {
+		var calls []call
+		l := makeLabeler(LabelerConfigV1{Version: 1, Labels: []LabelMatcher{{Label: "Test", Title: "^Testy.*t"}}}, &calls)
+		l.ProcessAllIssues("srvaroa", "labeler")
+		if len(calls) != 0 {
+			t.Errorf("Expected no issues processed, got %d", len(calls))
+		}
+	})
+
+	t.Run("Does not process issues if Issues config is set to False", func(t *testing.T) {
+		var calls []call
+		l := makeLabeler(LabelerConfigV1{Version: 1, Issues: false, Labels: []LabelMatcher{{Label: "Test", Title: "^Testy.*t"}}}, &calls)
+		l.ProcessAllIssues("srvaroa", "labeler")
+		if len(calls) != 0 {
+			t.Errorf("Expected no issues processed, got %d", len(calls))
+		}
+	})
+
+	t.Run("Does not process issues if Issues config is unset (zero value)", func(t *testing.T) {
+		var calls []call
+		l := makeLabeler(LabelerConfigV1{Version: 1, Labels: []LabelMatcher{{Label: "Test", Title: "^Testy.*t"}}}, &calls)
+		l.ProcessAllIssues("srvaroa", "labeler")
+		if len(calls) != 0 {
+			t.Errorf("Expected no issues processed, got %d", len(calls))
+		}
+	})
+
+	t.Run("Processes issues if Issues flag is set", func(t *testing.T) {
+		var calls []call
+		l := makeLabeler(LabelerConfigV1{Version: 1, Issues: true, Labels: []LabelMatcher{{Label: "Test", Title: "^Testy.*t"}}}, &calls)
+		l.ProcessAllIssues("srvaroa", "labeler")
+		if len(calls) != 1 {
+			t.Errorf("Expected 1 issue processed, got %d", len(calls))
+		}
+		if len(calls) > 0 {
+			expected := []string{"ShouldStay", "Test"}
+			got := calls[0].labels
+			sort.Strings(expected)
+			sort.Strings(got)
+			if !reflect.DeepEqual(expected, got) {
+				t.Errorf("Expected labels %v, got %+v", expected, got)
+			}
+		}
+	})
+}
+
+func TestHandleEvent(t *testing.T) {
 	// These all use the payload in payload files
 	testCases := []TestCase{
+		{
+			event:          "issues",
+			payloads:       []string{"issue_open"},
+			name:           "Do not process issues if Issues flag is not set",
+			config:         LabelerConfigV1{Version: 1, Labels: []LabelMatcher{{Label: "Test", Title: "^Testy.*t"}}},
+			initialLabels:  []string{"ShouldStay"},
+			expectedLabels: []string{"ShouldStay"},
+		},
+		{
+			event:    "issues",
+			payloads: []string{"issue_open"},
+			name:     "Do not process issues if Issues config is set to False",
+			config: LabelerConfigV1{
+				Version: 1,
+				Issues:  false,
+				Labels: []LabelMatcher{
+					{
+						Label: "TestIssueLabelUnset",
+						Title: "^Testy.*t",
+					},
+				},
+			},
+			initialLabels:  []string{"ShouldStay"},
+			expectedLabels: []string{"ShouldStay"},
+		},
+		{
+			event:    "issues",
+			payloads: []string{"issue_open"},
+			name:     "Do not process issues if Issues config is unset (zero value)",
+			config: LabelerConfigV1{
+				Version: 1,
+				// Issues field is omitted (zero value)
+				Labels: []LabelMatcher{
+					{
+						Label: "TestIssueLabelUnset",
+						Title: "^Testy.*t",
+					},
+				},
+			},
+			initialLabels:  []string{"ShouldStay"},
+			expectedLabels: []string{"ShouldStay"},
+		},
+		{
+			event:    "issues",
+			payloads: []string{"issue_open"},
+			name:     "Process issues if Issues flag is set",
+			config: LabelerConfigV1{
+				Version: 1,
+				Issues:  true,
+				Labels: []LabelMatcher{
+					{
+						Label: "TestIssueLabel",
+						Title: "^Testy.*t",
+					},
+				},
+			},
+			initialLabels:  []string{"ShouldStay"},
+			expectedLabels: []string{"ShouldStay", "TestIssueLabel"},
+		},
 		{
 			event:          "pull_request",
 			payloads:       []string{"create_pr", "reopen_pr"},
@@ -216,7 +358,7 @@ func TestHandleEvent(t *testing.T) {
 						Label: "Getting Old",
 						AgeRange: &DurationConfig{
 							AtLeast: "7d",
-							AtMost: "14d",
+							AtMost:  "14d",
 						},
 					},
 					{
