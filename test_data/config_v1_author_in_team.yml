@@ -1,0 +1,4 @@
+version: 1
+labels:
+  - label: "TestIsAuthorInTeam"
+    author-in-team: "team-a"
