@@ -27,3 +27,5 @@ labels:
     mergeable: True
   - label: "TestAuthorCanMerge"
     author-can-merge: True
+  - label: "TestIsAuthorInTeam"
+    author-in-team: "team1"

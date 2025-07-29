@@ -116,6 +116,14 @@ func (l *Labeler) HandleEvent(
 	case *gh.PullRequestTargetEvent:
 		err = l.ExecuteOn(wrapPrAsTarget(event.PullRequest))
 	case *gh.IssuesEvent:
+		config, cfgErr := l.FetchRepoConfig()
+		if cfgErr != nil {
+			return cfgErr
+		}
+		if !config.Issues {
+			log.Println("Issues must be explicitly enabled in order to process issues in event mode")
+			return nil
+		}
 		err = l.ExecuteOn(wrapIssueAsTarget(event.Issue))
 	default:
 		log.Printf("Event type is not supported, please review your workflow config")
@@ -298,8 +306,8 @@ func (l *Labeler) ProcessAllIssues(owner, repo string) {
 	}
 
 	if !config.Issues {
-		log.Println("Issues must be explicitly enabled in order to " +
-			"process issues in the scheduled execution mode")
+		log.Println("Issues must be explicitly enabled in order to process issues in the scheduled execution mode")
+		return
 	}
 
 	issues, err := l.GitHubFacade.ListIssuesByRepo(owner, repo)

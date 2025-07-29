@@ -30,9 +30,16 @@ type TestCase struct {
 }
 
 func TestHandleEvent(t *testing.T) {
-
-	// These all use the payload in payload files
-	testCases := []TestCase{
+	   // These all use the payload in payload files
+	   testCases := []TestCase{
+			   {
+					   event:    "issues",
+					   payloads: []string{"issue_open"},
+					   name:     "Do not process issues if Issues flag is not set",
+					   config:   LabelerConfigV1{Version: 1, Labels: []LabelMatcher{{Label: "Test", Title: "^Testy.*t"}}},
+					   initialLabels:  []string{"ShouldStay"},
+					   expectedLabels: []string{"ShouldStay"},
+			   },
 		{
 			event:          "pull_request",
 			payloads:       []string{"create_pr", "reopen_pr"},

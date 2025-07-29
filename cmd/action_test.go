@@ -146,6 +146,10 @@ func TestGetLabelerConfigV1(t *testing.T) {
 				Label:          "TestAuthorCanMerge",
 				AuthorCanMerge: "True",
 			},
+			{
+				Label:        "TestIsAuthorInTeam",
+				AuthorInTeam: "team1",
+			},
 		},
 	}
 
