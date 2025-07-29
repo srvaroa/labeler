@@ -1,6 +1,8 @@
 module github.com/srvaroa/labeler
 
-go 1.18
+go 1.23.0
+
+toolchain go1.24.5
 
 require (
 	github.com/go-yaml/yaml v2.1.0+incompatible
