@@ -125,6 +125,14 @@ func TestHandleEvent(t *testing.T) {
 			expectedLabels: []string{"ShouldStay"},
 		},
 		{
+			event:          "issues",
+			payloads:       []string{"issue_open"},
+			name:           "Do not process issues if Issues flag is not set",
+			config:         LabelerConfigV1{Version: 1, Labels: []LabelMatcher{{Label: "Test", Title: "^Testy.*t"}}},
+			initialLabels:  []string{"ShouldStay"},
+			expectedLabels: []string{"ShouldStay"},
+		},
+		{
 			event:    "issues",
 			payloads: []string{"issue_open"},
 			name:     "Do not process issues if Issues config is set to False",
