@@ -1,6 +1,6 @@
 module github.com/srvaroa/labeler
 
-go 1.23.0
+go 1.24.0
 
 toolchain go1.24.5
 
@@ -9,7 +9,7 @@ require (
 	github.com/google/go-cmp v0.7.0
 	github.com/google/go-github/v50 v50.2.0
 	github.com/waigani/diffparser v0.0.0-20190828052634-7391f219313d
-	golang.org/x/oauth2 v0.30.0
+	golang.org/x/oauth2 v0.33.0
 )
 
 require (
