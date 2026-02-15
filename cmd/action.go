@@ -234,6 +234,10 @@ func newLabeler(gh *github.Client, config *labeler.LabelerConfigV1) *labeler.Lab
 					github.RawOptions{Type: github.Diff})
 				return diff, err
 			},
+			GetPR: func(owner, repo string, prNumber int) (*github.PullRequest, error) {
+				pr, _, err := gh.PullRequests.Get(ctx, owner, repo, prNumber)
+				return pr, err
+			},
 			ListIssuesByRepo: func(owner, repo string) ([]*github.Issue, error) {
 				issues, _, err := gh.Issues.ListByRepo(ctx,
 					owner, repo, &github.IssueListByRepoOptions{

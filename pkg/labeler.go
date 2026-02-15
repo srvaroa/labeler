@@ -68,6 +68,7 @@ type LabelUpdates struct {
 // Just to make this mockable..
 type GitHubFacade struct {
 	GetRawDiff         func(owner, repo string, prNumber int) (string, error)
+	GetPR              func(owner, repo string, prNumber int) (*gh.PullRequest, error)
 	ListIssuesByRepo   func(owner, repo string) ([]*gh.Issue, error)
 	ListPRs            func(owner, repo string) ([]*gh.PullRequest, error)
 	IsUserMemberOfTeam func(org, user, team string) (bool, error)
@@ -340,6 +341,17 @@ func (l *Labeler) ProcessAllPRs(owner, repo string) {
 	for _, pr := range prs {
 		if pr.State != nil && strings.ToLower(*pr.State) != "open" {
 			continue
+		}
+		// The List endpoint does not populate fields like
+		// additions/deletions. We need to fetch each PR
+		// individually to get full details (see #173).
+		if l.GitHubFacade.GetPR != nil {
+			fullPR, err := l.GitHubFacade.GetPR(owner, repo, pr.GetNumber())
+			if err != nil {
+				log.Printf("Unable to get full PR #%d: %+v", pr.GetNumber(), err)
+			} else {
+				pr = fullPR
+			}
 		}
 		err = l.ExecuteOn(wrapPrAsTarget(pr))
 		if err != nil {
