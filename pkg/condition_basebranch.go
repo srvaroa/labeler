@@ -19,7 +19,7 @@ func BaseBranchCondition() Condition {
 				return false, fmt.Errorf("branch is not set in config")
 			}
 			prBranchName := target.ghPR.Base.GetRef()
-			log.Printf("Matching `%s` against: `%s`", matcher.Branch, prBranchName)
+			log.Printf("Matching `%s` against: `%s`", matcher.BaseBranch, prBranchName)
 			isMatched, _ := regexp.Match(matcher.BaseBranch, []byte(prBranchName))
 			return isMatched, nil
 		},
