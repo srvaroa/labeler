@@ -303,8 +303,11 @@ alphabetical order. Some important considerations:
 * All conditions based on regex rely on [Go's `regexp`
   package](https://pkg.go.dev/regexp), which accepts the syntax accepted
   by RE2 and described at [golang.org](https://golang.org/s/re2syntax).
-  You can use tools like [regex101.com](https://regex101.com/?flavor=golang)
-  to verify your conditions.
+  You can use the [Go Playground](https://go.dev/play/p/8hTyL_-r_Th)
+  to verify your conditions. Note that tools like regex101.com treat
+  patterns as raw strings (no backslash escaping needed), which differs
+  from how YAML passes strings to Go. See the note on [backslash
+  escaping](#backslash-escaping) below.
 
 ### Age (PRs and Issues) <a name="age" />
 
@@ -426,11 +429,14 @@ files:
 - ".*\\/subfolder\\/.*\\.md"
 ```
 
-> **NOTICE** the double backslash (`\\`) in the example above. This GitHub
-Action is coded in Go (Golang), which means you need to pay special attention to
-regular expressions (Regex). Special characters need to be escaped with double
-backslashes. This is because the backslash in Go strings is an escape character
-and therefore must be escaped itself to appear as a literal in the regex.
+> <a name="backslash-escaping" /> **NOTICE** the double backslash (`\\`)
+> in the example above. In YAML double-quoted strings, the backslash is
+> an escape character, so you must write `\\` to produce a literal `\`
+> for the Go regex engine. For example, to match a literal dot you need
+> `\\.` in your YAML config. Tools like regex101.com treat patterns as
+> raw strings and do not require this double escaping, which can be
+> confusing — use the [Go Playground](https://go.dev/play/p/8hTyL_-r_Th)
+> instead to test patterns with realistic escaping.
 
 ### Last Modified (PRs and Issues) <a name="last-modified" />
 
@@ -533,11 +539,8 @@ This condition will apply the `L` label if the diff is above 100 lines,
 but NOT taking into account changes in `yarn.lock`, or any `test.md`
 file that is in a subdirectory of `root`.
 
-**NOTICE** the double backslash (`\\`) in the example above. This GitHub
-Action is coded in Go (Golang), which means you need to pay special attention to
-regular expressions (Regex). Special characters need to be escaped with double
-backslashes. This is because the backslash in Go strings is an escape character
-and therefore must be escaped itself to appear as a literal in the regex.
+**NOTICE** the double backslash (`\\`) in the example above. See
+the note on [backslash escaping](#backslash-escaping) above.
 
 **NOTICE** the old format for specifying size properties (`size-above`
 and `size-below`) has been deprecated. The action will continue
