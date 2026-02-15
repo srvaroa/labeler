@@ -54,7 +54,7 @@ func FilesCondition(l *Labeler) Condition {
 
 // getPrFileNames returns all of the file names (old and new) of files changed in the given PR
 func (l *Labeler) getPrFileNames(pr *gh.PullRequest) ([]string, error) {
-	log.Printf("getPrFileNames for pr - " + pr.GetURL())
+	log.Printf("getPrFileNames for pr - %s", pr.GetURL())
 	ghToken := os.Getenv("GITHUB_TOKEN")
 	diffReq, err := http.NewRequest("GET", pr.GetURL(), nil)
 
