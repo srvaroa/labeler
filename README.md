@@ -364,6 +364,12 @@ member of the given team (identified by its url slug).
 author-in-team: core-team
 ```
 
+**Note:** This condition requires a token with `read:org` scope to check
+team membership. The default `GITHUB_TOKEN` in GitHub Actions does not
+include this scope, so API calls will fail with a 404 error. You will
+need to provide a Personal Access Token (PAT) or a GitHub App token with
+`read:org` permissions via the `GITHUB_TOKEN` environment variable.
+
 ### Authors (PRs and Issues)  <a name="authors" />
 
 This condition is satisfied when the author of the PR or Issue matches
