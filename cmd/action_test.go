@@ -2,11 +2,15 @@ package main
 
 import (
 	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"reflect"
+	"strings"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-github/v50/github"
 	l "github.com/srvaroa/labeler/pkg"
 	labeler "github.com/srvaroa/labeler/pkg"
 )
@@ -300,4 +304,115 @@ func TestGetLabelerConfig2V1(t *testing.T) {
 		}
 	}
 
+}
+
+func TestIsUserMemberOfTeam_404(t *testing.T) {
+	// Simulate the GitHub API returning 404 when the token lacks
+	// read:org scope. Verify that newLabeler's IsUserMemberOfTeam
+	// produces an actionable error message mentioning permissions.
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(`{"message":"Not Found"}`))
+	})
+	server := httptest.NewServer(mux)
+	defer server.Close()
+
+	ghClient, err := github.NewEnterpriseClient(
+		server.URL+"/",
+		server.URL+"/",
+		server.Client(),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	config := &labeler.LabelerConfigV1{Version: 1}
+	labelerInstance := newLabeler(ghClient, config)
+
+	isMember, err := labelerInstance.GitHubFacade.IsUserMemberOfTeam(
+		"myorg", "someuser", "myteam")
+
+	if isMember {
+		t.Error("Expected isMember to be false on 404")
+	}
+	if err == nil {
+		t.Fatal("Expected an error on 404")
+	}
+	if !strings.Contains(err.Error(), "HTTP 404") {
+		t.Errorf("Expected error to mention HTTP 404, got: %s", err.Error())
+	}
+	if !strings.Contains(err.Error(), "read:org") {
+		t.Errorf("Expected error to mention read:org scope, got: %s", err.Error())
+	}
+}
+
+func TestIsUserMemberOfTeam_ActiveMember(t *testing.T) {
+	// Simulate a successful membership check returning active state.
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{"state":"active","role":"member"}`))
+	})
+	server := httptest.NewServer(mux)
+	defer server.Close()
+
+	ghClient, err := github.NewEnterpriseClient(
+		server.URL+"/",
+		server.URL+"/",
+		server.Client(),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	config := &labeler.LabelerConfigV1{Version: 1}
+	labelerInstance := newLabeler(ghClient, config)
+
+	isMember, err := labelerInstance.GitHubFacade.IsUserMemberOfTeam(
+		"myorg", "someuser", "myteam")
+
+	if err != nil {
+		t.Fatalf("Expected no error, got: %v", err)
+	}
+	if !isMember {
+		t.Error("Expected isMember to be true for active member")
+	}
+}
+
+func TestIsUserMemberOfTeam_500(t *testing.T) {
+	// Verify that non-404 errors are returned as-is without the
+	// permissions guidance message.
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(`{"message":"Internal Server Error"}`))
+	})
+	server := httptest.NewServer(mux)
+	defer server.Close()
+
+	ghClient, err := github.NewEnterpriseClient(
+		server.URL+"/",
+		server.URL+"/",
+		server.Client(),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	config := &labeler.LabelerConfigV1{Version: 1}
+	labelerInstance := newLabeler(ghClient, config)
+
+	isMember, err := labelerInstance.GitHubFacade.IsUserMemberOfTeam(
+		"myorg", "someuser", "myteam")
+
+	if isMember {
+		t.Error("Expected isMember to be false on 500")
+	}
+	if err == nil {
+		t.Fatal("Expected an error on 500")
+	}
+	if strings.Contains(err.Error(), "read:org") {
+		t.Errorf("Non-404 errors should not mention read:org, got: %s", err.Error())
+	}
 }

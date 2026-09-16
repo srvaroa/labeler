@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -253,8 +254,17 @@ func newLabeler(gh *github.Client, config *labeler.LabelerConfigV1) *labeler.Lab
 				return prs, err
 			},
 			IsUserMemberOfTeam: func(org, user, team string) (bool, error) {
-				membership, _, err := gh.Teams.GetTeamMembershipBySlug(ctx, org, team, user)
+				membership, resp, err := gh.Teams.GetTeamMembershipBySlug(ctx, org, team, user)
 				if err != nil {
+					if resp != nil && resp.StatusCode == 404 {
+						return false, fmt.Errorf(
+							"failed to check team membership for user %s in %s/%s (HTTP 404). "+
+								"This is likely because the token lacks organization read permissions. "+
+								"The default GITHUB_TOKEN does not have the `read:org` scope required "+
+								"to query team membership. Provide a Personal Access Token or GitHub App "+
+								"token with `read:org` scope via the GITHUB_TOKEN environment variable",
+							user, org, team)
+					}
 					return false, err
 				}
 				return membership.GetState() == "active", nil
